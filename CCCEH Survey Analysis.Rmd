@@ -51,7 +51,7 @@ view(all_practice_data)
 ```
 ```{r, motivation}
 
-# Overall, what is the average score for this question?: For each child 12 and under, rate on a scale of 1-10 how much they wear children's makeup and body products as play versus for beautification?
+# For each child 12 and under, rate on a scale of 1-10 how much they wear children's makeup and body products as play versus for beautification?
 
 # First, need to convert scores from chr to number
 all_practice_data$X1_Q31_1 <- as.numeric(all_practice_data$X1_Q31_1)
@@ -72,6 +72,30 @@ print(rating_means)
 # Summarise overall mean
 rating_means <- rating_means_by_child %>% rowwise() %>% mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
 print(rating_means)
+
+# Summarise mean by age group (Q12 Child Age)
+
+# Start by adding a new variable of child age groups:
+# 0 - 3 (Infants)
+# 4 - 6 (Preschool and Kindergarten)
+# 7 - 9 (Early Elementary)
+# 10 - 12 (Late Elementary/Early Middle School)
+
+# Convert age to a number
+all_practice_data$X1_Q12 <- as.numeric(all_practice_data$X1_Q12)
+all_practice_data$X2_Q12 <- as.numeric(all_practice_data$X2_Q12)
+all_practice_data$X3_Q12 <- as.numeric(all_practice_data$X3_Q12)
+all_practice_data$X4_Q12 <- as.numeric(all_practice_data$X4_Q12)
+all_practice_data$X5_Q12 <- as.numeric(all_practice_data$X5_Q12)
+glimpse(all_practice_data)
+
+all_practice_data <- all_practice_data %>% 
+  mutate(child1_age_group = if_else(X1_Q12 <= 3, "0-3", 
+                            if_else(X1_Q12 <= 6, "4-6", 
+                            if_else(X1_Q12 <= 9, "7-9",
+                            if_else(X1_Q12 <= 12, "10-12", NA_character_)))))
+
+
 
 
 ```
