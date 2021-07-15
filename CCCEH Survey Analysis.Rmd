@@ -242,9 +242,10 @@ all_practice_data %>%
 
 Q26 <- all_practice_data %>% select(ID, X1_Q26, X2_Q26, X3_Q26, X4_Q26, X5_Q26)
 Q26 <- Q26 %>% pivot_longer(!ID, names_to = "Child", values_to = "Duration")
-Q26 %>% count(Duration)
+view(Q26)
 Q26 <- Q26 %>% count(Duration) %>% mutate(prop = n/sum(n))
 view(Q26)
+
 
 ```
 
