@@ -128,6 +128,49 @@ glimpse(all_practice_data)
 all_practice_data %>%
   count(child1_age_group) %>%
   mutate(prop=n/sum(n))
+#Child 1 Age
+#0-3	 2	0.1666667		
+#4-6	 2	0.1666667		
+#7-9	 2	0.1666667	
+#10-12 6	0.5000000	
+all_practice_data %>%
+  count(child2_age_group) %>%
+  mutate(prop=n/sum(n))
+#0-3	  2	0.1666667		
+#4-6	  4	0.3333333		
+#7-9	  0	0.0000000	
+#10-12	2	0.1666667	
+
+all_practice_data %>%
+  count(child3_age_group) %>%
+  mutate(prop=n/sum(n))
+#0-3	  4	0.3333333	
+#4-6    0 0.0000000
+#7-9    0 0.0000000
+#10-12	2	0.1666667	
+
+all_practice_data %>%
+  count(child4_age_group) %>%
+  mutate(prop=n/sum(n))
+#0-3     0 0.0000000
+#4-6	   2	0.1666667	
+#7-9     0 0.0000000
+#10-12   0 0.0000000
+
+all_practice_data %>%
+  count(child5_age_group) %>%
+  mutate(prop=n/sum(n))
+#0-3	    2	0.1666667	
+#4-6      0 0.0000000
+#7-9      0 0.0000000
+#10-12    0 0.0000000
+
+#Overall
+#0-3 = 10 = 0.3
+#4-6 = 8 = 0.267
+#7-9 = 2 = 0.067
+#10-12 = 10 = 0.3
+#total = 30 
 
 
 #0-3 age group infant
@@ -167,7 +210,7 @@ all_practice_data <- all_practice_data %>%
 #This is where it gets tricky. We cannot just divide the number in each category by the total number of responses because some parents might have one child or five children so we need a way to add up all of the children so that we can find a percentage. We can do this by hand by adding up the count (# respones) to each age category and then dividing but I think there should be an easier way.
 
 
-# Create a sub dataset that is just the rating questions
+# Create a sub dataset that is just the agecat questions
 #This didn't work because the five children are all in the same row so it's overriding 
 practice <- all_practice_data %>% select(X1_Q12, X2_Q12, X3_Q12, X4_Q12, X5_Q12)
 practice <- all_practice_data %>%
@@ -227,7 +270,7 @@ all_practice_data %>%
   group_by(young) %>%
   count() %>%
   mutate(prop=n/sum(n))
->>>>>>> ec243b494e3ef5d1891cd46c1c0e9455778b75a5
+>>>>>>> 
 ```
 
 ## Indirect Motivation: Duration of wear
