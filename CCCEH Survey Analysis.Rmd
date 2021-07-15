@@ -70,7 +70,7 @@ rating_means <- practice_data_rating %>% summarise_all(mean, na.rm = TRUE)
 print(rating_means)
 
 # Summarise overall mean
-rating_means <- rating_means_by_child %>% rowwise() %>% mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
+rating_means <- rating_means %>% rowwise() %>% mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
 print(rating_means)
 
 # Summarise mean by age group (Q12 Child Age)
