@@ -70,6 +70,7 @@ all_practice_data$X4_Q12 <- as.numeric(all_practice_data$X4_Q12)
 all_practice_data$X5_Q12 <- as.numeric(all_practice_data$X5_Q12)
 glimpse(all_practice_data)
 
+# Add age category variable
 all_practice_data <- all_practice_data %>% 
   mutate(child1_age_group = if_else(X1_Q12 <= 3, "0-3", 
                             if_else(X1_Q12 <= 6, "4-6", 
@@ -161,9 +162,8 @@ print(rating_means)
 
 Q26 <- all_practice_data %>% select(ID, X1_Q26, X2_Q26, X3_Q26, X4_Q26, X5_Q26)
 Q26 <- Q26 %>% pivot_longer(!ID, names_to = "Child", values_to = "Duration")
-view(Q26)
-Q26 <- Q26 %>% count(Duration) %>% mutate(prop = n/sum(n))
-view(Q26)
+Q26 <- Q26 %>% filter(!is.na(Duration)) %>% count(Duration) %>% mutate(prop = n/sum(n))
+print(Q26)
 
 
 ```
