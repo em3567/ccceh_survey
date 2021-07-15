@@ -21,13 +21,13 @@ library(labelled)
 ```{r import}
 # import first data set
 practice_data <- read.csv("Responses3.csv")
-view(practice_data)
+#view(practice_data)
 
 # ESTABLISH CODEBOOK!
 
 # get rid of first row of observations (the questions)
 practice_data <- practice_data[-1,]
-view(practice_data)
+#view(practice_data)
 
 # add a column that indicates the source
 practice_data <- practice_data %>% mutate(data_source = "YMCA")
@@ -35,11 +35,11 @@ glimpse(practice_data)
 
 # import next data set (for now, I'll just re-import the same one)
 practice_data2 <- read.csv("Responses3.csv")
-view(practice_data2)
+#view(practice_data2)
 
 # get rid of first row of observations (the questions)
 practice_data2 <- practice_data2[-1,]
-view(practice_data2)
+#view(practice_data2)
 
 # add a column that indicates the source (different from the first data set)
 practice_data2 <- practice_data2 %>% mutate(data_source = "Scouts")
@@ -47,39 +47,15 @@ glimpse(practice_data2)
 
 # Merge the data sets
 all_practice_data <- rbind(practice_data, practice_data2)
-view(all_practice_data)
+#view(all_practice_data)
 # NOTE: numbers on the far left are automatically assigned by R and are weird
 
 all_practice_data <- all_practice_data %>% mutate(ID = 1:n()) %>% select(ID, everything())
 
 ```
 
-## Direct Motivation: Play vs. Beautification Rating 
-```{r, motivation}
-# For each child 12 and under, rate on a scale of 1-10 how much they wear children's makeup and body products as play versus for beautification?
-
-# First, need to convert scores from chr to number
-all_practice_data$X1_Q31_1 <- as.numeric(all_practice_data$X1_Q31_1)
-all_practice_data$X2_Q31_1 <- as.numeric(all_practice_data$X2_Q31_1)
-all_practice_data$X3_Q31_1 <- as.numeric(all_practice_data$X3_Q31_1)
-all_practice_data$X4_Q31_1 <- as.numeric(all_practice_data$X4_Q31_1)
-all_practice_data$X5_Q31_1 <- as.numeric(all_practice_data$X5_Q31_1)
-glimpse(all_practice_data)
-
-# Create a sub dataset that is just the rating questions
-practice_data_rating <- all_practice_data %>% select(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)
-view(practice_data_rating)
-
-# Summarise mean by child
-rating_means <- practice_data_rating %>% summarise_all(mean, na.rm = TRUE)
-print(rating_means)
-
-# Summarise overall mean
-rating_means <- rating_means %>% rowwise() %>% mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
-print(rating_means)
-
-# Summarise mean by age group (Q12 Child Age)
-
+##Age Proportion
+```{r}
 # Start by adding a new variable of child age groups:
 # 0 - 3 (Infants)
 # 4 - 6 (Preschool and Kindergarten)
@@ -124,138 +100,46 @@ all_practice_data <- all_practice_data %>%
                             if_else(X5_Q12 <= 9, "7-9",
                             if_else(X5_Q12 <= 12, "10-12", NA_character_)))))
 
+#For each individual age
+Q12 <- all_practice_data %>% select(Q2, X1_Q12, X2_Q12, X3_Q12, X4_Q12, X5_Q12)
+Q12 <- Q12 %>% pivot_longer(!Q2, names_to = "Child", values_to = "Age")
+Q12 %>% count(Age)
+Q12 <- Q12 %>% filter(!is.na(Age)) %>% count(Age) %>% mutate(prop = n/sum(n))
+view(Q12)
+
+#For each age category 
+Q12_2 <- all_practice_data %>% select(ID, child1_age_group, child2_age_group, child3_age_group, child4_age_group, child5_age_group)
+Q12_2 <- Q12_2 %>% pivot_longer(!ID, names_to = "Child", values_to = "AgeCat")
+Q12_2 %>% count(AgeCat)
+Q12_2 <- Q12_2 %>% filter(!is.na(AgeCat)) %>% count(AgeCat) %>% mutate(prop = n/sum(n))
+view(Q12_2)
+```
+
+
+## Direct Motivation: Play vs. Beautification Rating 
+```{r, motivation}
+# For each child 12 and under, rate on a scale of 1-10 how much they wear children's makeup and body products as play versus for beautification?
+
+# First, need to convert scores from chr to number
+all_practice_data$X1_Q31_1 <- as.numeric(all_practice_data$X1_Q31_1)
+all_practice_data$X2_Q31_1 <- as.numeric(all_practice_data$X2_Q31_1)
+all_practice_data$X3_Q31_1 <- as.numeric(all_practice_data$X3_Q31_1)
+all_practice_data$X4_Q31_1 <- as.numeric(all_practice_data$X4_Q31_1)
+all_practice_data$X5_Q31_1 <- as.numeric(all_practice_data$X5_Q31_1)
 glimpse(all_practice_data)
-#What percentage of children are in each age group?
-#This is only going to give us within child 1,2,3. We want overall. Different than the row above because these aren't numbers 
-all_practice_data %>%
-  count(child1_age_group) %>%
-  mutate(prop=n/sum(n))
-#Child 1 Age
-#0-3	 2	0.1666667		
-#4-6	 2	0.1666667		
-#7-9	 2	0.1666667	
-#10-12 6	0.5000000	
-all_practice_data %>%
-  count(child2_age_group) %>%
-  mutate(prop=n/sum(n))
-#0-3	  2	0.1666667		
-#4-6	  4	0.3333333		
-#7-9	  0	0.0000000	
-#10-12	2	0.1666667	
 
-all_practice_data %>%
-  count(child3_age_group) %>%
-  mutate(prop=n/sum(n))
-#0-3	  4	0.3333333	
-#4-6    0 0.0000000
-#7-9    0 0.0000000
-#10-12	2	0.1666667	
+# Create a sub dataset that is just the rating questions
+practice_data_rating <- all_practice_data %>% select(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)
+#view(practice_data_rating)
 
-all_practice_data %>%
-  count(child4_age_group) %>%
-  mutate(prop=n/sum(n))
-#0-3     0 0.0000000
-#4-6	   2	0.1666667	
-#7-9     0 0.0000000
-#10-12   0 0.0000000
+# Summarise mean by child
+rating_means <- practice_data_rating %>% summarise_all(mean, na.rm = TRUE)
+print(rating_means)
 
-all_practice_data %>%
-  count(child5_age_group) %>%
-  mutate(prop=n/sum(n))
-#0-3	    2	0.1666667	
-#4-6      0 0.0000000
-#7-9      0 0.0000000
-#10-12    0 0.0000000
+# Summarise overall mean
+rating_means <- rating_means %>% rowwise() %>% mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
+print(rating_means)
 
-#Overall
-#0-3 = 10 = 0.3
-#4-6 = 8 = 0.267
-#7-9 = 2 = 0.067
-#10-12 = 10 = 0.3
-#total = 30 
-
-
-#0-3 age group infant
-all_practice_data <- all_practice_data %>% 
-  mutate(infant = if_else(X1_Q12 <= 3, "infant", 
-                            if_else(X2_Q12 <= 3, "infant", 
-                            if_else(X3_Q12 <= 3, "infant",
-                            if_else(X4_Q12 <= 3, "infant",
-                            if_else(X5_Q12 <= 3, "infant",
-                            NA_character_))))))
-all_practice_data$infant
-#4-6 age group young
-all_practice_data <- all_practice_data %>% 
-  mutate(young = if_else(X1_Q12 <= 6, "young", 
-                            if_else(X2_Q12 <= 6, "young", 
-                            if_else(X3_Q12 <= 6, "young",
-                            if_else(X4_Q12 <= 6, "young",
-                            if_else(X5_Q12 <= 6, "young",
-                            NA_character_))))))
-
-#7-9 age group middle 
-all_practice_data <- all_practice_data %>% 
-  mutate(middle = if_else(X1_Q12 <= 9, "middle", 
-                            if_else(X2_Q12 <= 9, "middle", 
-                            if_else(X3_Q12 <= 9, "middle",
-                            if_else(X4_Q12 <= 9, "middle",
-                            if_else(X5_Q12 <= 9, "middle",
-                            NA_character_))))))
-#10-12 age group older
-all_practice_data <- all_practice_data %>% 
-  mutate(older = if_else(X1_Q12 <= 12, "older", 
-                            if_else(X2_Q12 <= 12, "older", 
-                            if_else(X3_Q12 <= 12, "older",
-                            if_else(X4_Q12 <= 12, "older",
-                            if_else(X5_Q12 <= 12, "older",
-                            NA_character_))))))
-#This is where it gets tricky. We cannot just divide the number in each category by the total number of responses because some parents might have one child or five children so we need a way to add up all of the children so that we can find a percentage. We can do this by hand by adding up the count (# respones) to each age category and then dividing but I think there should be an easier way.
-
-
-# Create a sub dataset that is just the agecat questions
-#This didn't work because the five children are all in the same row so it's overriding 
-practice <- all_practice_data %>% select(X1_Q12, X2_Q12, X3_Q12, X4_Q12, X5_Q12)
-practice <- all_practice_data %>%
-  mutate(agecat = if_else(X1_Q12 <= 3, 0, 
-                            if_else(X2_Q12 <= 3, 0, 
-                            if_else(X3_Q12 <= 3, 0,
-                            if_else(X4_Q12 <= 3, 0,
-                            if_else(X5_Q12 <= 3, 0,
-                            if_else(X1_Q12 %in% 4:6, 1,
-                            if_else(X2_Q12 %in% 4:6, 1,
-                            if_else(X3_Q12 %in% 4:6, 1,
-                            if_else(X4_Q12 %in% 4:6, 1,
-                            if_else(X5_Q12 %in% 4:6, 1,
-                            if_else(X1_Q12 %in% 7:9, 2,
-                            if_else(X2_Q12 %in% 7:9, 2,
-                            if_else(X3_Q12 %in% 7:9, 2,
-                            if_else(X4_Q12 %in% 7:9, 2,
-                            if_else(X5_Q12 %in% 7:9, 2,
-                            if_else(X1_Q12 %in% 10:12, 3,
-                            if_else(X2_Q12 %in% 10:12, 3,
-                            if_else(X3_Q12 %in% 10:12, 3,
-                            if_else(X4_Q12 %in% 10:12, 3,
-                            if_else(X5_Q12 %in% 10:12, 3,               NA_real_)))))))))))))))))))))
-glimpse(practice)
-view(practice)
-
-
-
-practice_data_agecat <- all_practice_data %>% select(infant, young, middle, older, child1_age_group, child2_age_group, child3_age_group, child4_age_group, child5_age_group)
-view(practice_data_agecat)
-
-practice_data_agecat <- practice_data_agecat %>%
-     set_value_labels(child1_age_group = c(1 = "infant", “Female” = 2),
-                                 Race = c(“NH White” = 1, “NH Black” = 2, “Hispanic” = 3,                   
-                                                  “Asian” = 4, “Other” = 5))
-
-
-
-practice_data_agecat$infant <- as.numeric(practice_data_agecat$infant)
-practice_data_agecat$young <- as.numeric(practice_data_agecat$young)
-practice_data_agecat$middle <- as.numeric(practice_data_agecat$middle)
-practice_data_agecat$older <- as.numeric(practice_data_agecat$older)
-glimpse(practice_data_agecat)
 
 # Summarise mean by child
 agecat_means <- practice_data_agecat %>% summarise_all(mean, na.rm = TRUE)
@@ -265,14 +149,6 @@ print(agecat_means)
 rating_means <- rating_means %>% rowwise() %>% mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
 print(rating_means)
 
-
-
-
-all_practice_data %>%
-  group_by(young) %>%
-  count() %>%
-  mutate(prop=n/sum(n))
->>>>>>> 
 ```
 
 ## Indirect Motivation: Duration of wear
