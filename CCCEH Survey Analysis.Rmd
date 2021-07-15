@@ -133,20 +133,11 @@ glimpse(all_practice_data)
 practice_data_rating <- all_practice_data %>% select(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)
 #view(practice_data_rating)
 
-# Summarise mean by child
+# Summarise mean rating by child
 rating_means <- practice_data_rating %>% summarise_all(mean, na.rm = TRUE)
 print(rating_means)
 
-# Summarise overall mean
-rating_means <- rating_means %>% rowwise() %>% mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
-print(rating_means)
-
-
-# Summarise mean by child
-agecat_means <- practice_data_agecat %>% summarise_all(mean, na.rm = TRUE)
-print(agecat_means)
-
-# Summarise overall mean
+# Summarise overall mean rating 
 rating_means <- rating_means %>% rowwise() %>% mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
 print(rating_means)
 
@@ -162,9 +153,11 @@ print(rating_means)
 
 Q26 <- all_practice_data %>% select(ID, X1_Q26, X2_Q26, X3_Q26, X4_Q26, X5_Q26)
 Q26 <- Q26 %>% pivot_longer(!ID, names_to = "Child", values_to = "Duration")
-Q26 <- Q26 %>% filter(!is.na(Duration)) %>% count(Duration) %>% mutate(prop = n/sum(n))
+Q26 <- Q26 %>% count(Duration) %>% mutate(prop = n/sum(n))
 print(Q26)
 
+library(naniar)
+all_practice_dataa %>% replace_with_na_if("")
 
 ```
 
