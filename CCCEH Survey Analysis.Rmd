@@ -95,7 +95,29 @@ all_practice_data <- all_practice_data %>%
                             if_else(X1_Q12 <= 9, "7-9",
                             if_else(X1_Q12 <= 12, "10-12", NA_character_)))))
 
+all_practice_data <- all_practice_data %>% 
+  mutate(child1_age_group = if_else(X2_Q12 <= 3, "0-3", 
+                            if_else(X2_Q12 <= 6, "4-6", 
+                            if_else(X2_Q12 <= 9, "7-9",
+                            if_else(X2_Q12 <= 12, "10-12", NA_character_)))))
 
+all_practice_data <- all_practice_data %>% 
+  mutate(child1_age_group = if_else(X3_Q12 <= 3, "0-3", 
+                            if_else(X3_Q12 <= 6, "4-6", 
+                            if_else(X3_Q12 <= 9, "7-9",
+                            if_else(X3_Q12 <= 12, "10-12", NA_character_)))))
+
+all_practice_data <- all_practice_data %>% 
+  mutate(child1_age_group = if_else(X4_Q12 <= 3, "0-3", 
+                            if_else(X4_Q12 <= 6, "4-6", 
+                            if_else(X4_Q12 <= 9, "7-9",
+                            if_else(X4_Q12 <= 12, "10-12", NA_character_)))))
+
+all_practice_data <- all_practice_data %>% 
+  mutate(child1_age_group = if_else(X5_Q12 <= 3, "0-3", 
+                            if_else(X5_Q12 <= 6, "4-6", 
+                            if_else(X5_Q12 <= 9, "7-9",
+                            if_else(X5_Q12 <= 12, "10-12", NA_character_)))))
 
 
 ```
