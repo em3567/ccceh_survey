@@ -50,6 +50,8 @@ all_practice_data <- rbind(practice_data, practice_data2)
 view(all_practice_data)
 # NOTE: numbers on the far left are automatically assigned by R and are weird
 
+all_practice_data <- all_practice_data %>% mutate(ID = 1:n()) %>% select(ID, everything())
+
 ```
 
 ## Direct Motivation: Play vs. Beautification Rating 
@@ -233,8 +235,16 @@ all_practice_data %>%
 ## Indirect Motivation: Duration of wear
 ```{r, duration}
 
-# In the last year, approximately how long does this child wear children's makeup and body products for when they use them?
+# Q26 In the last year, approximately how long does this child wear children's makeup and body products for when they use them? 
+# 0-2 hours, 2-4 hours, 4-6 hours, 6-8 hours, 8+ hours, Do not know
 
+# Combine data from all children into 1 table and assess distribution overall
+
+Q26 <- all_practice_data %>% select(ID, X1_Q26, X2_Q26, X3_Q26, X4_Q26, X5_Q26)
+Q26 <- Q26 %>% pivot_longer(!ID, names_to = "Child", values_to = "Duration")
+Q26 %>% count(Duration)
+Q26 <- Q26 %>% count(Duration) %>% mutate(prop = n/sum(n))
+view(Q26)
 
 ```
 
