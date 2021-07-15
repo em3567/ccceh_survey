@@ -16,6 +16,8 @@ library(dplyr)
 library(labelled)
 
 ```
+
+## Import Data
 ```{r import}
 # import first data set
 practice_data <- read.csv("Responses3.csv")
@@ -49,6 +51,8 @@ view(all_practice_data)
 # NOTE: numbers on the far left are automatically assigned by R and are weird
 
 ```
+
+## Direct Motivation: Play vs. Beautification Rating 
 ```{r, motivation}
 
 # For each child 12 and under, rate on a scale of 1-10 how much they wear children's makeup and body products as play versus for beautification?
@@ -118,7 +122,15 @@ all_practice_data <- all_practice_data %>%
                             if_else(X5_Q12 <= 6, "4-6", 
                             if_else(X5_Q12 <= 9, "7-9",
                             if_else(X5_Q12 <= 12, "10-12", NA_character_)))))
+```
 
+## Indirect Motivation: Duration of wear
+```{r, duration of wear}
+
+# In the last year, approximately how long does this child wear children's makeup and body products for when they use them?
 
 ```
+
+
+
 
