@@ -192,8 +192,8 @@ all_practice_data2 <- all_practice_data2 %>%
 view(all_practice_data2)
 
 #Below only worked for questions that return a number
-all_practice_data2 %>%
-  replace_with_na_all(condition = ~.x %in% missing_values)
-view(all_practice_data2)
+#all_practice_data2 %>%
+#  replace_with_na_all(condition = ~.x %in% missing_values)
+#view(all_practice_data2)
 ```
 
