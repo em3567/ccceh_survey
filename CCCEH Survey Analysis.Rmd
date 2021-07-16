@@ -3,6 +3,8 @@ title: "CCCEH Survey Analysis"
 author: "Eleanor Medley"
 date: "7/8/2021"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -14,7 +16,7 @@ library(readr)
 library(tidyverse)
 library(dplyr)
 library(labelled)
-
+library(naniar) #Allows us to replace all missing values with NA
 ```
 
 ## Import Data
@@ -137,21 +139,10 @@ view(practice_data_rating)
 rating_means <- practice_data_rating %>% summarise_all(mean, na.rm = TRUE)
 print(rating_means)
 
-<<<<<<< HEAD
-# Summarise overall mean
-rating_means <- rating_means %>% rowwise() %>% mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
-print(rating_means)
-
-
-# Summarise overall mean
-=======
 # Summarise overall mean rating 
->>>>>>> 3fa34d238fa3b002316627bb9c35ad4ba7d99d38
-rating_means <- rating_means %>% rowwise() %>% mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
+rating_means <- rating_means %>% rowwise() %>% 
+  mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
 print(rating_means)
-
-# Summarise mean by age category
-
 
 ```
 
@@ -166,18 +157,10 @@ print(rating_means)
 Q26 <- all_practice_data %>% select(ID, X1_Q26, X2_Q26, X3_Q26, X4_Q26, X5_Q26)
 #is.na(Q26$X3_Q26) Returning false -- no NAs
 Q26 <- Q26 %>% pivot_longer(!ID, names_to = "Child", values_to = "Duration")
-<<<<<<< HEAD
+
 Q26 %>% count(Duration)
 Q26 <- Q26 %>% filter(!is.na(Duration)) %>% count(Duration) %>% mutate(prop = n/sum(n))
 view(Q26)
-=======
-Q26 <- Q26 %>% count(Duration) %>% mutate(prop = n/sum(n))
-print(Q26)
-
-library(naniar)
-all_practice_dataa %>% replace_with_na_if("")
->>>>>>> 3fa34d238fa3b002316627bb9c35ad4ba7d99d38
-
 ```
 
 ###All Chlildren
@@ -199,4 +182,21 @@ all_practice_data %>%
 
 ```
 
+###Change missing to NA
+```{r}
+all_practice_data2 <- all_practice_data
+missing_values <- c("")
+all_practice_data2 %>%
+  replace_with_na_all(condition = ~.x %in% missing_values)
+view(all_practice_data2)
+#This only worked for questions that return a number
+
+#all_practice_data2 <- all_practice_data2 %>%
+#  mutate(across(where(is.character), ~na.if(., "")))
+
+
+
+#all_practice_data2 %>% replace_with_na_all(condition = ~.x == "")
+#view(all_practice_data2)
+```
 
