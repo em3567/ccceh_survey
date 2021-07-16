@@ -1,10 +1,10 @@
 ---
 title: "CCCEH Survey Analysis"
-author: "Eleanor Medley"
-date: "7/8/2021"
+author: "Eleanor Medley and Kendall Kruchten"
+date: "7/16/2021"
 output: html_document
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
@@ -56,6 +56,22 @@ all_practice_data <- all_practice_data %>% mutate(ID = 1:n()) %>% select(ID, eve
 
 ```
 
+###Change Missing to NA
+```{r}
+missing_values <- c("")
+all_practice_data <- all_practice_data %>%
+  replace_with_na_if(.predicate = is.character,
+                     condition = ~.x %in% (missing_values))
+view(all_practice_data2)
+
+#Below only worked for questions that return a number
+#all_practice_data2 %>%
+#  replace_with_na_all(condition = ~.x %in% missing_values)
+#view(all_practice_data2)
+```
+
+
+
 ##Age Proportion
 ```{r}
 # Start by adding a new variable of child age groups:
@@ -104,18 +120,34 @@ all_practice_data <- all_practice_data %>%
                             if_else(X5_Q12 <= 12, "10-12", NA_character_)))))
 
 #For each individual age
-Q12 <- all_practice_data %>% select(Q2, X1_Q12, X2_Q12, X3_Q12, X4_Q12, X5_Q12)
-Q12 <- Q12 %>% pivot_longer(!Q2, names_to = "Child", values_to = "Age")
+Q12 <- all_practice_data %>% select(ID, X1_Q12, X2_Q12, X3_Q12, X4_Q12, X5_Q12)
+Q12 <- Q12 %>% pivot_longer(!ID, names_to = "Child", values_to = "Age")
 Q12 %>% count(Age)
-Q12 <- Q12 %>% filter(!is.na(Age)) %>% count(Age) %>% mutate(prop = n/sum(n))
-view(Q12)
+Q12 %>% filter(!is.na(Age)) %>% count(Age) %>% mutate(prop = n/sum(n))
+#    Age     n   prop
+#  <dbl> <int>  <dbl>
+#1     0     2 0.0667
+#2     1     6 0.2   
+#3     2     2 0.0667
+#4     5     4 0.133 
+#5     6     4 0.133 
+#6     8     2 0.0667
+#7    10     2 0.0667
+#8    11     2 0.0667
+#9    12     6 0.2  
 
 #For each age category 
 Q12_2 <- all_practice_data %>% select(ID, child1_age_group, child2_age_group, child3_age_group, child4_age_group, child5_age_group)
 Q12_2 <- Q12_2 %>% pivot_longer(!ID, names_to = "Child", values_to = "AgeCat")
+
 Q12_2 %>% count(AgeCat)
-Q12_2 <- Q12_2 %>% filter(!is.na(AgeCat)) %>% count(AgeCat) %>% mutate(prop = n/sum(n))
-view(Q12_2)
+Q12_2 %>% filter(!is.na(AgeCat)) %>% count(AgeCat) %>% mutate(prop = n/sum(n))
+#  AgeCat     n   prop
+#  <chr>  <int>  <dbl>
+#1 0-3       10 0.333 
+#2 4-6        8 0.267 
+#3 7-9        2 0.0667 
+#4 10-12     10 0.333
 ```
 
 
@@ -143,57 +175,58 @@ print(rating_means)
 rating_means <- rating_means %>% rowwise() %>% 
   mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
 print(rating_means)
-
 ```
 
 ## Indirect Motivation: Duration of wear
 ```{r, duration}
-
 # Q26 In the last year, approximately how long does this child wear children's makeup and body products for when they use them? 
 # 0-2 hours, 2-4 hours, 4-6 hours, 6-8 hours, 8+ hours, Do not know
 
 # Combine data from all children into 1 table and assess distribution overall
-#This is not coding missing data as NA so you cannot remove the missing values -- affecting proprtions
 Q26 <- all_practice_data %>% select(ID, X1_Q26, X2_Q26, X3_Q26, X4_Q26, X5_Q26)
-#is.na(Q26$X3_Q26) Returning false -- no NAs
 Q26 <- Q26 %>% pivot_longer(!ID, names_to = "Child", values_to = "Duration")
 
 Q26 %>% count(Duration)
-Q26 <- Q26 %>% filter(!is.na(Duration)) %>% count(Duration) %>% mutate(prop = n/sum(n))
+Q26 %>% filter(!is.na(Duration)) %>% count(Duration) %>% mutate(prop = n/sum(n))
 view(Q26)
+
+#Duration of wear by age category 
+Q12_3 <- Q12_2 %>% select(AgeCat)
+Q26_3 <- Q26 %>% select(Duration)
+Q26_Q12 <- cbind(Q12_3, Q26_3)
+view(Q26_Q12)
+Q26_Q12 %>%
+  filter(!is.na(AgeCat)) %>%
+  filter(!is.na(Duration)) %>%
+  group_by(Duration) %>%
+  count(AgeCat) %>%
+  mutate(prop = n/sum(n))
+#Results
+#0-2 hours	0-3	4	0.5000000	
+#-2 hours	10-12	2	0.2500000	
+#0-2 hours	4-6	2	0.2500000	
+#2-4 hours	10-12	8	0.5714286	
+#2-4 hours	4-6	6	0.4285714	
+#8+ hours	0-3	2	1.0000000	
 ```
 
 ###All Chlildren
 ```{r}
-#We will need to recode all Prefer not ot answer/do not know to NA
 #Q39 Frequency Read Ingredients
 all_practice_data %>%
-  select(-Q39=="NA") %>%
+  filter(!is.na(Q39)) %>%
   count(Q39) %>%
   mutate(prop = n/sum(n))
-
+#     Q39 n prop
+#1  Never 4  0.5
+#2 Rarely 4  0.5
 
 #Q40 - Frequency of Purchase
-#This is not working right now because missing values are not NA/Prefer not to answer/do not know but once they are this will be correct. 
 all_practice_data %>%
-  select(-Q40=="NA") %>%
+  filter(!is.na(Q40)) %>%
   count(Q40) %>%
   mutate(prop = n/sum(n))
-
+#             Q40 n prop
+#1 Every 6 months 4  0.5
+#2    Once a year 4  0.5
 ```
-
-###Change missing to NA
-```{r}
-all_practice_data2 <- all_practice_data
-missing_values <- c("")
-all_practice_data2 <- all_practice_data2 %>%
-  replace_with_na_if(.predicate = is.character,
-                     condition = ~.x %in% (missing_values))
-view(all_practice_data2)
-
-#Below only worked for questions that return a number
-#all_practice_data2 %>%
-#  replace_with_na_all(condition = ~.x %in% missing_values)
-#view(all_practice_data2)
-```
-
