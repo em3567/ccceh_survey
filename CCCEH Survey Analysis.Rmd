@@ -71,7 +71,6 @@ view(all_practice_data)
 ```
 
 
-
 ##Age Proportion
 ```{r}
 # Start by adding a new variable of child age groups:
@@ -167,21 +166,16 @@ glimpse(all_practice_data)
 practice_data_rating <- all_practice_data %>% select(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)
 view(practice_data_rating)
 
-# Summarise mean rating by child 1,2,3,4,5
-#This is not really what we will put into analysis. This is solely being used to calculate overall. 
-rating_means <- practice_data_rating %>% summarise_all(mean, na.rm = TRUE)
-print(rating_means)
-# Summarise overall mean rating 
-rating_means <- rating_means %>% rowwise() %>% 
-  mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
-print(rating_means)
-
+Q31 <- all_practice_data %>% select(ID, X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)
+Q31 <- Q31 %>% pivot_longer(!ID, names_to = "Child", values_to = "Rating")
+view(Q31)
+Q31 %>% filter(!is.na(Rating)) %>% summarise(mean = mean(Rating))
+summary(Q31$Rating)
+# Summary above gives you overall mean 
 
 #Data rating by child age category 
-Q31_1 <- all_practice_data %>% select(ID, X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)
-Q31_1 <- Q31_1 %>% pivot_longer(!ID, names_to = "Child", values_to = "Rating")
 Q12_3 <- Q12_2 %>% select(AgeCat)
-Q31_2 <- Q31_1 %>% select(Rating)
+Q31_2 <- Q31 %>% select(Rating)
 Q31_Q12 <- cbind(Q12_3, Q31_2)
 view(Q31_Q12)
 Q31_Q12 %>%
@@ -190,7 +184,7 @@ Q31_Q12 %>%
   group_by(Rating) %>%
   count(AgeCat) %>%
   mutate(prop = n/sum(n))
-#Restults
+#Results
 #Score Age    n %
 #1	   10-12	4	1.0000000	
 #2	   10-12	4	1.0000000	
