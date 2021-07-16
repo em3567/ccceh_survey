@@ -20,7 +20,7 @@ library(naniar) #Allows us to replace all missing values with NA
 ```
 
 ## Import Data
-```{r import}
+```{r, import}
 # import first data set
 practice_data <- read.csv("Responses3.csv")
 #view(practice_data)
@@ -57,7 +57,7 @@ all_practice_data <- all_practice_data %>% mutate(ID = 1:n()) %>% select(ID, eve
 ```
 
 ###Change Missing to NA
-```{r}
+```{r, missing}
 missing_values <- c("")
 all_practice_data <- all_practice_data %>%
   replace_with_na_if(.predicate = is.character,
@@ -71,8 +71,8 @@ all_practice_data <- all_practice_data %>%
 ```
 
 
-##Age Proportions
-```{r}
+##Child Age Demographics
+```{r, age}
 # Start by adding a new variable of child age groups:
 # 0 - 3 (Infants)
 # 4 - 6 (Preschool and Kindergarten)
@@ -146,9 +146,29 @@ Q12_2 %>% filter(!is.na(age_cat)) %>% count(age_cat) %>% mutate(prop = n/sum(n))
 #4 10-12     10 0.333
 ```
 
+## Child Gender Demographics
+```{r, gender}
+# Q13 What gender identity best describes Child X?
+
+Q13 <- all_practice_data %>% select(ID, X1_Q13, X2_Q13, X3_Q13, X4_Q13, X5_Q13)
+#view(Q13)
+Q13 <- Q13 %>% pivot_longer(!ID, names_to = "child", values_to = "gender")
+#view(Q13)
+
+Q13 %>% drop_na() %>%
+  count(gender) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#gender n   prop
+#Female	18	0.6		
+#Male	  12	0.4	
+
+```
+
 
 ## Direct Motivation: Play vs. Beautification Rating 
-```{r, motivation}
+```{r, rating}
 # For each child 12 and under, rate on a scale of 1-10 how much they wear children's makeup and body products as play versus for beautification?
 
 # First, need to convert ratings from chr to number
@@ -206,7 +226,7 @@ Q26 %>% count(duration)
 Q26 %>% filter(!is.na(duration)) %>% count(duration) %>% mutate(prop = n/sum(n))
 view(Q26)
 
-# Duration of wear by age category 
+# Duration of wear by child age category 
 # Use Q12_3
 Q26_3 <- Q26 %>% select(duration)
 Q26_Q12 <- cbind(Q12_3, Q26_3)
@@ -226,6 +246,24 @@ Q26_Q12 %>%
 # 10-12	2-4 hours	8	0.8000000	
 # 4-6	0-2 hours	  2	0.2500000	
 # 4-6	2-4 hours	  6	0.7500000
+
+# Duration of wear by child gender
+Q13_3 <- Q13 %>% select(gender)
+Q26_Q13 <- cbind(Q26, Q13_3)
+#view(Q26_Q13)
+
+Q26_Q13 %>%
+  drop_na() %>%
+  group_by(gender) %>%
+  count(duration) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#Female	0-2 hours	4	0.250	
+#Female	2-4 hours	10	0.625	
+#Female	8+ hours	2	0.125	
+#Male	0-2 hours	4	0.500	
+#Male	2-4 hours	4	0.500	
 
 ```
 
