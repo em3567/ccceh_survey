@@ -33,7 +33,7 @@ practice_data <- practice_data[-1,]
 
 # add a column that indicates the source
 practice_data <- practice_data %>% mutate(data_source = "YMCA")
-glimpse(practice_data)
+# glimpse(practice_data)
 
 # import next data set (for now, I'll just re-import the same one)
 practice_data2 <- read.csv("Responses3.csv")
@@ -45,13 +45,13 @@ practice_data2 <- practice_data2[-1,]
 
 # add a column that indicates the source (different from the first data set)
 practice_data2 <- practice_data2 %>% mutate(data_source = "Scouts")
-glimpse(practice_data2)
+# glimpse(practice_data2)
 
 # Merge the data sets
 all_practice_data <- rbind(practice_data, practice_data2)
 #view(all_practice_data)
-# NOTE: numbers on the far left are automatically assigned by R and are weird
 
+# NOTE: numbers on the far left are automatically assigned by R and are weird. Add an ID column with ID numbers assigned to respondents sequentially. 
 all_practice_data <- all_practice_data %>% mutate(ID = 1:n()) %>% select(ID, everything())
 
 ```
@@ -62,16 +62,16 @@ missing_values <- c("")
 all_practice_data <- all_practice_data %>%
   replace_with_na_if(.predicate = is.character,
                      condition = ~.x %in% (missing_values))
-view(all_practice_data)
+# view(all_practice_data)
 
-#Below only worked for questions that return a number
+#Below only worked for questions that return a number: 
 #all_practice_data2 %>%
 #  replace_with_na_all(condition = ~.x %in% missing_values)
 #view(all_practice_data2)
 ```
 
 
-##Age Proportion
+##Age Proportions
 ```{r}
 # Start by adding a new variable of child age groups:
 # 0 - 3 (Infants)
@@ -79,50 +79,47 @@ view(all_practice_data)
 # 7 - 9 (Early Elementary)
 # 10 - 12 (Late Elementary/Early Middle School)
 
-# Convert age to a number
-all_practice_data$X1_Q12 <- as.numeric(all_practice_data$X1_Q12)
-all_practice_data$X2_Q12 <- as.numeric(all_practice_data$X2_Q12)
-all_practice_data$X3_Q12 <- as.numeric(all_practice_data$X3_Q12)
-all_practice_data$X4_Q12 <- as.numeric(all_practice_data$X4_Q12)
-all_practice_data$X5_Q12 <- as.numeric(all_practice_data$X5_Q12)
+# Convert child ages to numbers
+child_age <- c("X1_Q12", "X2_Q12", "X3_Q12", "X4_Q12", "X5_Q12")
+all_practice_data[child_age] <- sapply(all_practice_data[child_age], as.numeric)
 glimpse(all_practice_data)
 
 # Add age category variable
 all_practice_data <- all_practice_data %>% 
-  mutate(child1_age_group = if_else(X1_Q12 <= 3, "0-3", 
+  mutate(child1_age_cat = if_else(X1_Q12 <= 3, "0-3", 
                             if_else(X1_Q12 <= 6, "4-6", 
                             if_else(X1_Q12 <= 9, "7-9",
                             if_else(X1_Q12 <= 12, "10-12", NA_character_)))))
 
 all_practice_data <- all_practice_data %>% 
-  mutate(child2_age_group = if_else(X2_Q12 <= 3, "0-3", 
+  mutate(child2_age_cat = if_else(X2_Q12 <= 3, "0-3", 
                             if_else(X2_Q12 <= 6, "4-6", 
                             if_else(X2_Q12 <= 9, "7-9",
                             if_else(X2_Q12 <= 12, "10-12", NA_character_)))))
 
 all_practice_data <- all_practice_data %>% 
-  mutate(child3_age_group = if_else(X3_Q12 <= 3, "0-3", 
+  mutate(child3_age_cat = if_else(X3_Q12 <= 3, "0-3", 
                             if_else(X3_Q12 <= 6, "4-6", 
                             if_else(X3_Q12 <= 9, "7-9",
                             if_else(X3_Q12 <= 12, "10-12", NA_character_)))))
 
 all_practice_data <- all_practice_data %>% 
-  mutate(child4_age_group = if_else(X4_Q12 <= 3, "0-3", 
+  mutate(child4_age_cat = if_else(X4_Q12 <= 3, "0-3", 
                             if_else(X4_Q12 <= 6, "4-6", 
                             if_else(X4_Q12 <= 9, "7-9",
                             if_else(X4_Q12 <= 12, "10-12", NA_character_)))))
 
 all_practice_data <- all_practice_data %>% 
-  mutate(child5_age_group = if_else(X5_Q12 <= 3, "0-3", 
+  mutate(child5_age_cat = if_else(X5_Q12 <= 3, "0-3", 
                             if_else(X5_Q12 <= 6, "4-6", 
                             if_else(X5_Q12 <= 9, "7-9",
                             if_else(X5_Q12 <= 12, "10-12", NA_character_)))))
 
-#For each individual age
+#Proportions for each individual age
 Q12 <- all_practice_data %>% select(ID, X1_Q12, X2_Q12, X3_Q12, X4_Q12, X5_Q12)
-Q12 <- Q12 %>% pivot_longer(!ID, names_to = "Child", values_to = "Age")
-Q12 %>% count(Age)
-Q12 %>% filter(!is.na(Age)) %>% count(Age) %>% mutate(prop = n/sum(n))
+Q12 <- Q12 %>% pivot_longer(!ID, names_to = "child", values_to = "age")
+Q12 %>% count(age)
+Q12 %>% filter(!is.na(age)) %>% count(age) %>% mutate(prop = n/sum(n))
 #    Age     n   prop
 #  <dbl> <int>  <dbl>
 #1     0     2 0.0667
@@ -135,12 +132,12 @@ Q12 %>% filter(!is.na(Age)) %>% count(Age) %>% mutate(prop = n/sum(n))
 #8    11     2 0.0667
 #9    12     6 0.2  
 
-#For each age category 
-Q12_2 <- all_practice_data %>% select(ID, child1_age_group, child2_age_group, child3_age_group, child4_age_group, child5_age_group)
-Q12_2 <- Q12_2 %>% pivot_longer(!ID, names_to = "Child", values_to = "AgeCat")
+# Proportions for each age category 
+Q12_2 <- all_practice_data %>% select(ID, child1_age_cat, child2_age_cat, child3_age_cat, child4_age_cat, child5_age_cat)
+Q12_2 <- Q12_2 %>% pivot_longer(!ID, names_to = "child", values_to = "age_cat")
 
-Q12_2 %>% count(AgeCat)
-Q12_2 %>% filter(!is.na(AgeCat)) %>% count(AgeCat) %>% mutate(prop = n/sum(n))
+Q12_2 %>% count(age_cat)
+Q12_2 %>% filter(!is.na(age_cat)) %>% count(age_cat) %>% mutate(prop = n/sum(n))
 #  AgeCat     n   prop
 #  <chr>  <int>  <dbl>
 #1 0-3       10 0.333 
@@ -154,35 +151,29 @@ Q12_2 %>% filter(!is.na(AgeCat)) %>% count(AgeCat) %>% mutate(prop = n/sum(n))
 ```{r, motivation}
 # For each child 12 and under, rate on a scale of 1-10 how much they wear children's makeup and body products as play versus for beautification?
 
-# First, need to convert scores from chr to number
-all_practice_data$X1_Q31_1 <- as.numeric(all_practice_data$X1_Q31_1)
-all_practice_data$X2_Q31_1 <- as.numeric(all_practice_data$X2_Q31_1)
-all_practice_data$X3_Q31_1 <- as.numeric(all_practice_data$X3_Q31_1)
-all_practice_data$X4_Q31_1 <- as.numeric(all_practice_data$X4_Q31_1)
-all_practice_data$X5_Q31_1 <- as.numeric(all_practice_data$X5_Q31_1)
+# First, need to convert ratings from chr to number
+ratings <- c("X1_Q31_1", "X2_Q31_1", "X3_Q31_1", "X4_Q31_1", "X5_Q31_1")
+all_practice_data[ratings] <- sapply(all_practice_data[ratings], as.numeric)
 glimpse(all_practice_data)
 
 # Create a sub dataset that is just the rating questions
-practice_data_rating <- all_practice_data %>% select(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)
-view(practice_data_rating)
-
 Q31 <- all_practice_data %>% select(ID, X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)
-Q31 <- Q31 %>% pivot_longer(!ID, names_to = "Child", values_to = "Rating")
+Q31 <- Q31 %>% pivot_longer(!ID, names_to = "child", values_to = "rating")
 view(Q31)
-Q31 %>% filter(!is.na(Rating)) %>% summarise(mean = mean(Rating))
-summary(Q31$Rating)
+Q31 %>% filter(!is.na(rating)) %>% summarise(mean = mean(rating))
+summary(Q31$rating)
 # Summary above gives you overall mean 
 
 #Data rating by child age category 
-Q12_3 <- Q12_2 %>% select(AgeCat)
-Q31_2 <- Q31 %>% select(Rating)
+Q12_3 <- Q12_2 %>% select(age_cat)
+Q31_2 <- Q31 %>% select(rating)
 Q31_Q12 <- cbind(Q12_3, Q31_2)
 view(Q31_Q12)
 Q31_Q12 %>%
-  filter(!is.na(AgeCat)) %>%
-  filter(!is.na(Rating)) %>%
-  group_by(Rating) %>%
-  count(AgeCat) %>%
+  filter(!is.na(age_cat)) %>%
+  filter(!is.na(rating)) %>%
+  group_by(rating) %>%
+  count(age_cat) %>%
   mutate(prop = n/sum(n))
 #Results
 #Score Age    n %
@@ -194,6 +185,12 @@ Q31_Q12 %>%
 #8	   0-3	  2	0.5000000	
 #8	   4-6	  2	0.5000000	
 #10	   0-3	  4	1.0000000	
+
+# Mean rating by Age Category 
+Q31_Q12 %>% drop_na() %>%
+  group_by(fct_relevel(age_cat, "0-3", "4-6", "10-12")) %>%
+  summarise(mean_rating = mean(rating))
+
 ```
 
 ## Indirect Motivation: Duration of wear
@@ -203,39 +200,39 @@ Q31_Q12 %>%
 
 # Combine data from all children into 1 table and assess distribution overall
 Q26 <- all_practice_data %>% select(ID, X1_Q26, X2_Q26, X3_Q26, X4_Q26, X5_Q26)
-Q26 <- Q26 %>% pivot_longer(!ID, names_to = "Child", values_to = "Duration")
+Q26 <- Q26 %>% pivot_longer(!ID, names_to = "child", values_to = "duration")
 
-Q26 %>% count(Duration)
-Q26 %>% filter(!is.na(Duration)) %>% count(Duration) %>% mutate(prop = n/sum(n))
+Q26 %>% count(duration)
+Q26 %>% filter(!is.na(duration)) %>% count(duration) %>% mutate(prop = n/sum(n))
 view(Q26)
 
-#Duration of wear by age category 
-#use Q12_3
-Q26_3 <- Q26 %>% select(Duration)
+# Duration of wear by age category 
+# Use Q12_3
+Q26_3 <- Q26 %>% select(duration)
 Q26_Q12 <- cbind(Q12_3, Q26_3)
 view(Q26_Q12)
+
 Q26_Q12 %>%
-  filter(!is.na(AgeCat)) %>%
-  filter(!is.na(Duration)) %>%
-  group_by(Duration) %>%
-  count(AgeCat) %>%
+  drop_na() %>%
+  group_by(age_cat) %>%
+  count(duration) %>%
   mutate(prop = n/sum(n))
-#Results
-#Duration   Age   n %
-#0-2 hours	0-3	4	0.5000000	
-#-2 hours	  10-12	2	0.2500000	
-#0-2 hours	4-6	2	0.2500000	
-#2-4 hours	10-12	8	0.5714286	
-#2-4 hours	4-6	6	0.4285714	
-#8+ hours	  0-3	2	1.0000000	
 
+# Results 
+# Age Duration    n prop
+# 0-3	0-2 hours	  4	0.6666667	
+# 0-3	8+ hours	  2	0.3333333	
+# 10-12	0-2 hours	2	0.2000000	
+# 10-12	2-4 hours	8	0.8000000	
+# 4-6	0-2 hours	  2	0.2500000	
+# 4-6	2-4 hours	  6	0.7500000
 
-#Duration of wear by  
 ```
 
-###All Chlildren
+### All Children
 ```{r}
-#Q39 Frequency Read Ingredients
+#Q39 How often do you read the ingredients list before purchasing children's makeup and body products?
+
 all_practice_data %>%
   filter(!is.na(Q39)) %>%
   count(Q39) %>%
@@ -244,7 +241,8 @@ all_practice_data %>%
 #1  Never 4  0.5
 #2 Rarely 4  0.5
 
-#Q40 - Frequency of Purchase
+#Q40 Approximately how frequently do you buy children's makeup and body products for your children 12 and under? 
+
 all_practice_data %>%
   filter(!is.na(Q40)) %>%
   count(Q40) %>%
