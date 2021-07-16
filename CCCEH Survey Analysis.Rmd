@@ -62,7 +62,7 @@ missing_values <- c("")
 all_practice_data <- all_practice_data %>%
   replace_with_na_if(.predicate = is.character,
                      condition = ~.x %in% (missing_values))
-view(all_practice_data2)
+view(all_practice_data)
 
 #Below only worked for questions that return a number
 #all_practice_data2 %>%
@@ -167,14 +167,39 @@ glimpse(all_practice_data)
 practice_data_rating <- all_practice_data %>% select(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)
 view(practice_data_rating)
 
-# Summarise mean rating by child
+# Summarise mean rating by child 1,2,3,4,5
+#This is not really what we will put into analysis. This is solely being used to calculate overall. 
 rating_means <- practice_data_rating %>% summarise_all(mean, na.rm = TRUE)
 print(rating_means)
-
 # Summarise overall mean rating 
 rating_means <- rating_means %>% rowwise() %>% 
   mutate(overall_mean = mean(c(X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)))
 print(rating_means)
+
+
+#Data rating by child age category 
+Q31_1 <- all_practice_data %>% select(ID, X1_Q31_1, X2_Q31_1, X3_Q31_1, X4_Q31_1, X5_Q31_1)
+Q31_1 <- Q31_1 %>% pivot_longer(!ID, names_to = "Child", values_to = "Rating")
+Q12_3 <- Q12_2 %>% select(AgeCat)
+Q31_2 <- Q31_1 %>% select(Rating)
+Q31_Q12 <- cbind(Q12_3, Q31_2)
+view(Q31_Q12)
+Q31_Q12 %>%
+  filter(!is.na(AgeCat)) %>%
+  filter(!is.na(Rating)) %>%
+  group_by(Rating) %>%
+  count(AgeCat) %>%
+  mutate(prop = n/sum(n))
+#Restults
+#Score Age    n %
+#1	   10-12	4	1.0000000	
+#2	   10-12	4	1.0000000	
+#5	   10-12	2	0.3333333	
+#5	   4-6	  4	0.6666667	
+#7	   4-6	  2	1.0000000	
+#8	   0-3	  2	0.5000000	
+#8	   4-6	  2	0.5000000	
+#10	   0-3	  4	1.0000000	
 ```
 
 ## Indirect Motivation: Duration of wear
@@ -191,7 +216,7 @@ Q26 %>% filter(!is.na(Duration)) %>% count(Duration) %>% mutate(prop = n/sum(n))
 view(Q26)
 
 #Duration of wear by age category 
-Q12_3 <- Q12_2 %>% select(AgeCat)
+#use Q12_3
 Q26_3 <- Q26 %>% select(Duration)
 Q26_Q12 <- cbind(Q12_3, Q26_3)
 view(Q26_Q12)
@@ -202,12 +227,16 @@ Q26_Q12 %>%
   count(AgeCat) %>%
   mutate(prop = n/sum(n))
 #Results
+#Duration   Age   n %
 #0-2 hours	0-3	4	0.5000000	
-#-2 hours	10-12	2	0.2500000	
+#-2 hours	  10-12	2	0.2500000	
 #0-2 hours	4-6	2	0.2500000	
 #2-4 hours	10-12	8	0.5714286	
 #2-4 hours	4-6	6	0.4285714	
-#8+ hours	0-3	2	1.0000000	
+#8+ hours	  0-3	2	1.0000000	
+
+
+#Duration of wear by  
 ```
 
 ###All Chlildren
