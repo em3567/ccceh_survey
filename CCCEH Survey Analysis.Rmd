@@ -91,8 +91,6 @@ view(practice3)
 ```
 
 
-
-
 ##Child Age Demographics
 ```{r, age}
 # Start by adding a new variable of child age groups:
@@ -137,11 +135,18 @@ all_practice_data <- all_practice_data %>%
                             if_else(X5_Q12 <= 9, "7-9",
                             if_else(X5_Q12 <= 12, "10-12", NA_character_)))))
 
-#Proportions for each individual age
+# make subdataset Q12 with child ages and age groups
 Q12 <- all_practice_data %>% select(ID, X1_Q12, X2_Q12, X3_Q12, X4_Q12, X5_Q12)
 Q12 <- Q12 %>% pivot_longer(!ID, names_to = "child", values_to = "age")
-Q12 %>% count(age)
-Q12 %>% filter(!is.na(age)) %>% count(age) %>% mutate(prop = n/sum(n))
+
+Q12_2 <- all_practice_data %>% select(ID, child1_age_cat, child2_age_cat, child3_age_cat, child4_age_cat, child5_age_cat)
+Q12_2 <- Q12_2 %>% pivot_longer(!ID, names_to = "child", values_to = "age_cat")
+
+Q12 <- Q12_2 %>% select(age_cat) %>% cbind(Q12) %>% select(ID, child, age, age_cat)
+
+# Proportions for each individual age
+Q12 %>% drop_na() %>% count(age) %>% mutate(prop = n/sum(n))
+
 #    Age     n   prop
 #  <dbl> <int>  <dbl>
 #1     0     2 0.0667
@@ -155,17 +160,17 @@ Q12 %>% filter(!is.na(age)) %>% count(age) %>% mutate(prop = n/sum(n))
 #9    12     6 0.2  
 
 # Proportions for each age category 
-Q12_2 <- all_practice_data %>% select(ID, child1_age_cat, child2_age_cat, child3_age_cat, child4_age_cat, child5_age_cat)
-Q12_2 <- Q12_2 %>% pivot_longer(!ID, names_to = "child", values_to = "age_cat")
+Q12 %>% 
+  drop_na() %>% 
+  count(age_cat) %>% 
+  mutate(prop = n/sum(n)) 
 
-Q12_2 %>% count(age_cat)
-Q12_2 %>% filter(!is.na(age_cat)) %>% count(age_cat) %>% mutate(prop = n/sum(n))
-#  AgeCat     n   prop
+#  AgeCat   n    prop
 #  <chr>  <int>  <dbl>
-#1 0-3       10 0.333 
-#2 4-6        8 0.267 
-#3 7-9        2 0.0667 
-#4 10-12     10 0.333
+# 0-3       10	0.33333333		
+# 10-12	    10	0.33333333		
+# 4-6     	8	  0.26666667		
+# 7-9	      2	  0.06666667	
 ```
 
 ## Child Gender Demographics
@@ -188,28 +193,34 @@ Q13 %>% drop_na() %>%
 
 ```
 
+<<<<<<< HEAD
 ##Child Race Demographics
 ```{r}
 # Q14 What race identity best describes Child X?
 # Thinking about above when we want to analyze do we want to have their race reflect multi and bi-racial? I think it is important it just may give us a lot of results and lessen the strength of our analysis 
+=======
+## Child Race/Ethnicity Demographics
+```{r, child race}
+
+# Q14 What race/ethnicity category best describes Child X? (If your child is two or more races/ethnicities, please select all that apply)
+>>>>>>> 3d77ff6ecc0e1f493c275c4288b0b27ecde686ea
 
 Q14 <- all_practice_data %>% select(ID, X1_Q14, X2_Q14, X3_Q14, X4_Q14, X5_Q14)
-#view(Q14)
-Q14 <- Q14 %>% pivot_longer(!ID, names_to = "child", values_to = "race")
-#view(Q14)
+#view(Q13)
+Q14 <- Q14 %>% pivot_longer(!ID, names_to = "child", values_to = "race_eth")
+#view(Q13)
 
 Q14 %>% drop_na() %>%
-  count(race) %>%
+  count(race_eth) %>%
   mutate(prop = n/sum(n))
 
 #Results
-#American Indian or Alaska Native	2	  0.06666667	
-#Black or African American	      6	  0.20000000	
-#Black or African American,White	16	0.53333333	
-#East Asian	                      6	  0.20000000	
+#race_eth                         n prop
+#American Indian or Alaska Native 2	0.06666667		
+#Black or African American	      6	0.20000000		
+#Black or African American,White	16	0.53333333		
+#East Asian	                      6	0.20000000	
 ```
-
-
 
 ## Direct Motivation: Play vs. Beautification Rating 
 ```{r, rating}
@@ -228,33 +239,12 @@ Q31 %>% filter(!is.na(rating)) %>% summarise(mean = mean(rating))
 summary(Q31$rating)
 # Summary above gives you overall mean 
 
-#Data rating by child age category 
-Q12_3 <- Q12_2 %>% select(age_cat)
-Q31_2 <- Q31 %>% select(rating)
-Q31_Q12 <- cbind(Q12_3, Q31_2)
-view(Q31_Q12)
-Q31_Q12 %>%
-  filter(!is.na(age_cat)) %>%
-  filter(!is.na(rating)) %>%
-  group_by(rating) %>%
-  count(age_cat) %>%
-  mutate(prop = n/sum(n))
-#Results
-#Score Age    n %
-#1	   10-12	4	1.0000000	
-#2	   10-12	4	1.0000000	
-#5	   10-12	2	0.3333333	
-#5	   4-6	  4	0.6666667	
-#7	   4-6	  2	1.0000000	
-#8	   0-3	  2	0.5000000	
-#8	   4-6	  2	0.5000000	
-#10	   0-3	  4	1.0000000	
-
 # Mean rating by Age Category 
 Q31_Q12 %>% drop_na() %>%
   group_by(fct_relevel(age_cat, "0-3", "4-6", "10-12")) %>%
   summarise(mean_rating = mean(rating))
 
+<<<<<<< HEAD
 
 # Rating by child gender 
 Q13_2 <- Q13 %>% select(gender)
@@ -324,9 +314,16 @@ Q31_Q14 %>% drop_na() %>%
 #Black or African American,White	4.625000	
 #East Asian	                      6.333333
 #American Indians are most likely to use products for beautification. Black and White Americans are most likely to use products for play. 
+=======
+#Results
+#0-3	  9.333333	
+#4-6	  6.250000	
+#10-12	2.200000	
+
+>>>>>>> 3d77ff6ecc0e1f493c275c4288b0b27ecde686ea
 ```
 
-## Indirect Motivation: Duration of wear
+## Indirect Motivation: Duration of use
 ```{r, duration}
 # Q26 In the last year, approximately how long does this child wear children's makeup and body products for when they use them? 
 # 0-2 hours, 2-4 hours, 4-6 hours, 6-8 hours, 8+ hours, Do not know
@@ -334,16 +331,19 @@ Q31_Q14 %>% drop_na() %>%
 # Combine data from all children into 1 table and assess distribution overall
 Q26 <- all_practice_data %>% select(ID, X1_Q26, X2_Q26, X3_Q26, X4_Q26, X5_Q26)
 Q26 <- Q26 %>% pivot_longer(!ID, names_to = "child", values_to = "duration")
+#view(Q26)
 
-Q26 %>% count(duration)
 Q26 %>% filter(!is.na(duration)) %>% count(duration) %>% mutate(prop = n/sum(n))
-view(Q26)
 
-# Duration of wear by child age category 
-# Use Q12_3
-Q26_3 <- Q26 %>% select(duration)
-Q26_Q12 <- cbind(Q12_3, Q26_3)
-view(Q26_Q12)
+# Results
+#duration   n   prop
+#0-2 hours  8	  0.33333333		
+#2-4 hours	14  0.58333333		
+#8+ hours	  2	  0.08333333	
+
+# Duration of use by child age category 
+Q26_Q12 <- Q12 %>% select(age_cat) %>% cbind(Q26) %>% select(ID, child, duration, age_cat)
+# view(Q26_Q12)
 
 Q26_Q12 %>%
   drop_na() %>%
@@ -352,17 +352,16 @@ Q26_Q12 %>%
   mutate(prop = n/sum(n))
 
 # Results 
-# Age Duration    n prop
-# 0-3	0-2 hours	  4	0.6666667	
-# 0-3	8+ hours	  2	0.3333333	
-# 10-12	0-2 hours	2	0.2000000	
-# 10-12	2-4 hours	8	0.8000000	
-# 4-6	0-2 hours	  2	0.2500000	
-# 4-6	2-4 hours	  6	0.7500000
+# Age   Duration    n prop
+# 0-3	  0-2 hours	  4	0.6666667	
+# 0-3	  8+ hours	  2	0.3333333	
+# 10-12	0-2 hours	  2	0.2000000	
+# 10-12	2-4 hours	  8	0.8000000	
+# 4-6	  0-2 hours	  2	0.2500000	
+# 4-6	  2-4 hours	  6	0.7500000
 
-# Duration of wear by child gender
-Q13_3 <- Q13 %>% select(gender)
-Q26_Q13 <- cbind(Q26, Q13_3)
+# Duration of use by child gender
+Q26_Q13 <- Q13 %>% select(gender) %>% cbind(Q26) %>% select(ID, child, duration, gender)
 #view(Q26_Q13)
 
 Q26_Q13 %>%
@@ -372,11 +371,19 @@ Q26_Q13 %>%
   mutate(prop = n/sum(n))
 
 #Results
-#Female	0-2 hours	4	0.250	
+#Gender Duration  n   prop
+#Female	0-2 hours	4	  0.250	
 #Female	2-4 hours	10	0.625	
-#Female	8+ hours	2	0.125	
-#Male	0-2 hours	4	0.500	
-#Male	2-4 hours	4	0.500	
+#Female	8+ hours	2	  0.125	
+#Male	0-2 hours	  4	  0.500	
+#Male	2-4 hours	  4	  0.500	
+
+# Duration of use by child race/ethnicity
+Q26_Q14 <- Q14 %>% select(race_eth) %>% cbind(Q26) %>% select(ID, child, duration, race_eth)
+#view(Q26_Q14)
+
+
+
 
 #Duration of wear by child race 
 Q14_3 <- Q14 %>% select(race)
