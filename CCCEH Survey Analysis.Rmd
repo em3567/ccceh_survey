@@ -1,7 +1,7 @@
 ---
 title: "CCCEH Survey Analysis"
 author: "Eleanor Medley and Kendall Kruchten"
-date: "7/16/2021"
+date: "7/19/2021"
 output: html_document
 editor_options: 
   chunk_output_type: inline
@@ -235,6 +235,79 @@ Q8 <- all_practice_data %>% select(ID, Q8)
 Q8 <- Q8 %>% pivot_longer(!ID, names_to = "parent", values_to = "income")
 ```
 
+##Wear OUtside Home
+```{r}
+Q30 <- all_practice_data %>% select(ID, X1_Q30, X2_Q30, X3_Q30, X4_Q30, X5_Q30)
+
+Q30 <- Q30 %>% pivot_longer(!ID, names_to = "child", values_to = "outside")
+#view(Q30)
+
+Q30 %>% drop_na() %>%
+  count(fct_relevel(outside, "Never", "Rarely", "Sometimes", "Often", "Always", "Do not know")) %>%
+  mutate(prop = n/sum(n))
+#Results    n   %
+#Never	    2	  0.08333333		
+#Sometimes	6	  0.25000000		
+#Often	    10	0.41666667		
+#Always	    6	  0.25000000
+
+#By child age category
+Q30_demo <- Q12 %>% select(child_age_cat) %>% cbind(Q30) %>% select(ID, child, outside, child_age_cat)
+# view(Q30_Q12)
+
+Q30_demo %>%
+  drop_na() %>%
+  group_by(fct_relevel(child_age_cat, "0-3", "4-6", "7-9", "10-12")) %>%
+  count(outside) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#0-3    Never	      2	0.3333333
+#0-3    Often	      2	0.3333333
+#0-3    Sometimes	  2	0.3333333
+#4-6    Always	    2	0.2500000
+#4-6    Often	      6	0.7500000
+#10-12  Always	    4	0.4000000
+#10-12  Often	      2	0.2000000
+#10-12  Sometimes	  4	0.4000000
+
+#By child gender
+Q30_gender <- Q13 %>% select(child_gender) %>% cbind(Q30) %>% select(ID, child, outside, child_gender)
+# view(Q30_gender)
+
+Q30_gender %>%
+  drop_na() %>%
+  group_by(child_gender) %>%
+  count(outside) %>%
+  mutate(prop = n/sum(n))
+#Results 
+#Female	  Always	    2	0.125	
+#Female	  Never	      2	0.125	
+#Female 	Often	      6	0.375	
+#Female	  Sometimes	  6	0.375	
+#Male	    Always	    4	0.500	
+#Male	    Often	      4	0.500	
+
+#BY child race
+#By child gender
+Q30_race <- Q14 %>% select(child_race_eth) %>% cbind(Q30) %>% select(ID, child, outside, child_race_eth)
+# view(Q30_gender)
+
+Q30_race %>%
+  drop_na() %>%
+  group_by(child_race_eth) %>%
+  count(outside) %>%
+  mutate(prop = n/sum(n))
+
+#Results 
+#American Indian or Alaska Native	Sometimes	2	  1.0
+#Black or African American,White	Always	  4	  0.25
+#Black or African American,White	Never	    2	  0.125
+#Black or African American,White	Often   	6	  0.375
+#Black or African American,White	Sometimes	4	  0.25
+#East Asian                     	Always  	2	  0.333
+#East Asian	                      Often	    4   0.667
+```
 
 
 ## Direct Motivation: Play vs. Beautification Rating 
