@@ -88,8 +88,9 @@ practice3 <- separate_rows(all_practice_data, X3_Q14, sep = ",", convert = TRUE)
 practice3 <- separate_rows(all_practice_data, X4_Q14, sep = ",", convert = TRUE)
 practice3 <- separate_rows(all_practice_data, X5_Q14, sep = ",", convert = TRUE)
 view(practice3)
-```
 
+# We'll have to figure out how we want to analyze mixed race families before we start doing this
+```
 
 ##Child Age Demographics
 ```{r, age}
@@ -190,7 +191,6 @@ Q13 %>% drop_na() %>%
 #gender n   prop
 #Female	18	0.6		
 #Male	  12	0.4	
-
 ```
 
 ## Child Race/Ethnicity Demographics
@@ -208,11 +208,11 @@ Q14 %>% drop_na() %>%
   mutate(prop = n/sum(n))
 
 #Results
-#race_eth                         n prop
-#American Indian or Alaska Native 2	0.06666667		
-#Black or African American	      6	0.20000000		
+#race_eth                         n   prop
+#American Indian or Alaska Native 2	  0.06666667		
+#Black or African American	      6	  0.20000000		
 #Black or African American,White	16	0.53333333		
-#East Asian	                      6	0.20000000	
+#East Asian	                      6	  0.20000000	
 ```
 
 ## Direct Motivation: Play vs. Beautification Rating 
@@ -303,7 +303,20 @@ Q26_Q13 %>%
 Q26_Q14 <- Q14 %>% select(race_eth) %>% cbind(Q26) %>% select(ID, child, duration, race_eth)
 #view(Q26_Q14)
 
+Q26_Q14 %>% 
+  drop_na() %>% 
+  group_by(race_eth) %>%
+  count(duration) %>%
+  mutate(prop = n/sum(n))
 
+#Results
+#race_eth                         duration  n   prop
+#American Indian or Alaska Native	0-2 hours	2	  1.0000000	
+#Black or African American,White	0-2 hours	4	  0.2500000	
+#Black or African American,White	2-4 hours	12	0.7500000	
+#East Asian	                      0-2 hours	2 	0.3333333	
+#East Asian	                      2-4 hours	2	  0.3333333	
+#East Asian	                      8+ hours	2	  0.3333333	
 
 
 ```
