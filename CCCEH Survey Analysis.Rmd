@@ -193,16 +193,13 @@ Q13 %>% drop_na() %>%
 #Male	  12	0.4	
 ```
 
-<<<<<<< HEAD
 ##Child Race Demographics
 ```{r}
 # Q14 What race/ethnicity category best describes Child X? (If your child is two or more races/ethnicities, please select all that apply)
 # Thinking about above when we want to analyze do we want to have their race reflect multi and bi-racial? I think it is important it just may give us a lot of results and lessen the strength of our analysis 
 
 Q14 <- all_practice_data %>% select(ID, X1_Q14, X2_Q14, X3_Q14, X4_Q14, X5_Q14)
-#view(Q13)
 Q14 <- Q14 %>% pivot_longer(!ID, names_to = "child", values_to = "child_race_eth")
-#view(Q13)
 
 Q14 %>% drop_na() %>%
   count(child_race_eth) %>%
@@ -215,6 +212,24 @@ Q14 %>% drop_na() %>%
 #Black or African American,White	16	0.53333333		
 #East Asian	                      6	  0.20000000	
 ```
+#Parent Race/Ethnicity 
+```{r}
+Q6 <- all_practice_data %>% select(ID, Q6)
+Q6 <- Q6 %>% pivot_longer(!ID, names_to = "parent", values_to = "parent_race_eth")
+
+Q6 %>% drop_na() %>%
+  count(parent_race_eth) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#race_eth                         n   prop
+#American Indian or Alaska Native	2	0.2		
+#Black or African American	      2	0.2		
+#Black or African American,White	4	0.4		
+#East Asian	                      2	0.2	
+```
+
+
 
 ## Direct Motivation: Play vs. Beautification Rating 
 ```{r, rating}
@@ -349,23 +364,54 @@ Q26_demo %>%
 
 ### All Children
 ```{r}
-#Q39 How often do you read the ingredients list before purchasing children's makeup and body products?
+#Q39 How often do you read the ingredients list before purchasing children's makeup and body products
 
-all_practice_data %>%
-  filter(!is.na(Q39)) %>%
-  count(Q39) %>%
+Q39 <- all_practice_data %>% select(ID, Q39)
+Q39 <- Q39 %>% pivot_longer(!ID, names_to = "parent", values_to = "ingredients")
+Q39 %>% filter(!is.na(ingredients)) %>% count(ingredients) %>% mutate(prop = n/sum(n))
+
+#Results 
+#Never	4	0.5		
+#Rarely	4	0.5	
+
+#Ingredients by Parent Race 
+Q39_demo <- Q6 %>% select(parent_race_eth) %>% cbind(Q39) %>% select(ID, parent, ingredients, parent_race_eth)
+# view(Q39_demo)
+
+Q39_demo %>%
+  drop_na() %>%
+  group_by(parent_race_eth) %>%
+  count(ingredients) %>%
   mutate(prop = n/sum(n))
-#     Q39 n prop
-#1  Never 4  0.5
-#2 Rarely 4  0.5
+
+#Results 
+#American Indian or Alaska Native	  Rarely	2	1
+#Black or African American	        Rarely	2	1
+#Black or African American,White	  Never	  4	1
+
 
 #Q40 Approximately how frequently do you buy children's makeup and body products for your children 12 and under? 
 
-all_practice_data %>%
-  filter(!is.na(Q40)) %>%
-  count(Q40) %>%
-  mutate(prop = n/sum(n))
+Q40 <- all_practice_data %>% select(ID, Q40)
+Q40 <- Q40 %>% pivot_longer(!ID, names_to = "parent", values_to = "purchase_freq")
+Q40 %>% filter(!is.na(purchase_freq)) %>% count(purchase_freq) %>% mutate(prop = n/sum(n))
+
 #             Q40 n prop
 #1 Every 6 months 4  0.5
 #2    Once a year 4  0.5
+
+#Ingredients by Parent Race 
+Q40_demo <- Q6 %>% select(parent_race_eth) %>% cbind(Q40) %>% select(ID, parent, purchase_freq, parent_race_eth)
+# view(Q40_demo)
+
+Q40_demo %>%
+  drop_na() %>%
+  group_by(parent_race_eth) %>%
+  count(purchase_freq) %>%
+  mutate(prop = n/sum(n))
+#             Q40 n prop
+#American Indian or Alaska Native	Once a year	    2	1.0
+#Black or African American	      Every 6 months	2	1.0
+#Black or African American,White	Every 6 months	2	0.5
+#Black or African American,White	Once a year	    2	0.5
 ```
