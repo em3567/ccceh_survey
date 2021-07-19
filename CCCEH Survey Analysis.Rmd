@@ -212,8 +212,9 @@ Q14 %>% drop_na() %>%
 #Black or African American,White	16	0.53333333		
 #East Asian	                      6	  0.20000000	
 ```
-#Parent Race/Ethnicity 
+#Parent Demo
 ```{r}
+#Race Ethnicity
 Q6 <- all_practice_data %>% select(ID, Q6)
 Q6 <- Q6 %>% pivot_longer(!ID, names_to = "parent", values_to = "parent_race_eth")
 
@@ -227,6 +228,11 @@ Q6 %>% drop_na() %>%
 #Black or African American	      2	0.2		
 #Black or African American,White	4	0.4		
 #East Asian	                      2	0.2	
+
+
+#income
+Q8 <- all_practice_data %>% select(ID, Q8)
+Q8 <- Q8 %>% pivot_longer(!ID, names_to = "parent", values_to = "income")
 ```
 
 
@@ -284,6 +290,19 @@ Q31_demo %>% drop_na() %>%
 #Black or African American,White	4.625000		
 #East Asian	                      6.333333	
 
+#Rating by Parent Income
+Q31_income <- Q8 %>% select(income, parent) %>% cbind(Q31) %>% select(ID, child, rating, income, parent)
+
+Q31_income %>% drop_na() %>%
+  group_by(fct_relevel(income, "$25k - $75k", "$75k - $125k", "$125k - $175k", "$175k+", "Prefer not to answer")) %>%
+  summarise(mean_rating = mean(rating))
+#Results 
+#$25k - $75k	          5.000000		
+#$75k - $125k	          3.500000		
+#$125k - $175k	        5.500000		
+#$175k+	                8.666667		
+#Prefer not to answer	  4.000000
+#those with higher incomes tend to use products more in beautification than play. 
 ```
 
 ## Indirect Motivation: Duration of use
@@ -389,6 +408,41 @@ Q39_demo %>%
 #Black or African American	        Rarely	2	1
 #Black or African American,White	  Never	  4	1
 
+#By education
+all_practice_data %>%
+  group_by(fct_relevel(Q7, "Less than high school", "High school / Equivalent", "Vocational/trade school", "Some college", "Completed college", "Some graduate school or more", "Prefer not to answer")) %>%
+  count(Q39) %>%
+  mutate(prop = n/sum(n))
+
+#Results 
+#Vocational/trade school	        NA	2	1.0	
+#Some college	                    Rarely	2	1.0	
+#Completed college	              Never	2	0.5	
+#Completed college	              Rarely	2	0.5	
+#Some graduate school or more	    Never	2	1.0	
+
+all_practice_data %>%
+  group_by(fct_relevel(Q8, "$25k - $75k", "$75k - $125k", "$125k - $175k", "$175k+", "Prefer not to answer")) %>%
+  count(Q39) %>%
+  mutate(prop = n/sum(n))
+#Results               Freq   n %
+#$25k - $75k	         NA	    2	1	
+#$75k - $125k	         Rarely	4	1	
+#$125k - $175k	       Never	2	1	
+#$175k+	               Never  2	1	
+#Prefer not to answer	 NA	    2	1	
+
+#By Parent Age 
+all_practice_data %>%
+  group_by(fct_relevel(Q4, "18-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60+", "Prefer not to answer")) %>%
+  count(Q39) %>%
+  mutate(prop = n/sum(n))
+#Results 
+#18-24	Rarely	2	1.0	
+#30-34	NA	    2	1.0	
+#35-39	Rarely	2	0.5	
+#35-39	NA	    2	0.5	
+#40-44	Never	  4	1.0	
 
 #Q40 Approximately how frequently do you buy children's makeup and body products for your children 12 and under? 
 
@@ -414,4 +468,31 @@ Q40_demo %>%
 #Black or African American	      Every 6 months	2	1.0
 #Black or African American,White	Every 6 months	2	0.5
 #Black or African American,White	Once a year	    2	0.5
+
+#freq Purcahse by Education
+#By education
+all_practice_data %>%
+  group_by(fct_relevel(Q7, "Less than high school", "High school / Equivalent", "Vocational/trade school", "Some college", "Completed college", "Some graduate school or more", "Prefer not to answer")) %>%
+  count(Q40) %>%
+  mutate(prop = n/sum(n))
+#Results 
+#Vocational/trade school	        NA	            2	1.0
+#Some college	                    Every 6 months	2	1.0
+#Completed college	              Every 6 months	2	0.5
+#Completed college	              Once a year	    2	0.5
+#Some graduate school or more	    Once a year	    2	1.0
+#NA	                              NA	            2	1.0
+
+#Freq Purchase by Income
+all_practice_data %>%
+  group_by(fct_relevel(Q8, "$25k - $75k", "$75k - $125k", "$125k - $175k", "$175k+", "Prefer not to answer")) %>%
+  count(Q40) %>%
+  mutate(prop = n/sum(n))
+#Results 
+#$25k - $75k	          NA	            2	1.0	
+#$75k - $125k	          Every 6 months	2	0.5	
+#$75k - $125k	          Once a year	    2	0.5	
+#$125k - $175k	        Every 6 months	2	1.0	
+#$175k+	                Once a year	    2	1.0	
+#Prefer not to answer	  NA	            2	1.0	
 ```
