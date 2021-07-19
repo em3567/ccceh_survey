@@ -233,12 +233,27 @@ Q31 %>% filter(!is.na(rating)) %>% summarise(mean = mean(rating))
 summary(Q31$rating)
 # Summary above gives you overall mean 
 
+
+Q12_3 <- Q12 %>% select(age_cat)
+Q31_1 <- Q31 %>% select(rating)
+Q31_Q12 <- cbind(Q12_3, Q31_1)
+view(Q31_Q12)
+Q31_Q12 %>%
+  filter(!is.na(age_cat)) %>%
+  filter(!is.na(rating)) %>%
+  group_by(rating) %>%
+  count(age_cat) %>%
+  mutate(prop = n/sum(n))
 # Mean rating by Age Category 
 Q31_Q12 %>% drop_na() %>%
-  group_by(fct_relevel(age_cat, "0-3", "4-6", "10-12")) %>%
+  group_by(fct_relevel(age_cat, "0-3", "4-6","10-12")) %>%
   summarise(mean_rating = mean(rating))
-
+#We will have to add 7-9 when we get results for that age group. 
 #Results
+#Age Cat  Score
+#0-3	    9.333333
+#4-6	    6.250000
+#10-12	  2.200000
 
 
 # Rating by child gender 
