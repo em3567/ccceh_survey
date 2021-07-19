@@ -191,7 +191,7 @@ Q13 %>% drop_na() %>%
 ##Child Race Demographics
 ```{r}
 # Q14 What race identity best describes Child X?
-# Thinking about above when we want to analyze do we want to have their race reflect multi and bi-racial? I think it is important it just may give us a lot of results and lessen the strength of our anaylsis 
+# Thinking about above when we want to analyze do we want to have their race reflect multi and bi-racial? I think it is important it just may give us a lot of results and lessen the strength of our analysis 
 
 Q14 <- all_practice_data %>% select(ID, X1_Q14, X2_Q14, X3_Q14, X4_Q14, X5_Q14)
 #view(Q14)
@@ -255,6 +255,75 @@ Q31_Q12 %>% drop_na() %>%
   group_by(fct_relevel(age_cat, "0-3", "4-6", "10-12")) %>%
   summarise(mean_rating = mean(rating))
 
+
+# Rating by child gender 
+Q13_2 <- Q13 %>% select(gender)
+Q31_3 <- Q31 %>% select(rating)
+Q31_Q13 <- cbind(Q13_2, Q31_3)
+view(Q31_Q13)
+Q31_Q13 %>%
+  filter(!is.na(gender)) %>%
+  filter(!is.na(rating)) %>%
+  group_by(rating) %>%
+  count(gender) %>%
+  mutate(prop = n/sum(n))
+#Results
+#Score Gender    n %
+#1	Male	4	1.0	
+#2	Female	2	0.5	
+#2	Male	2	0.5	
+#5	Female	6	1.0	
+#7	Female	2	1.0	
+#8	Female	2	0.5	
+#8	Male	2	0.5	
+#10	Female	4	1.0	
+
+# Mean rating by Gender
+Q31_Q13 %>% drop_na() %>%
+  group_by(fct_relevel(gender, "Male", "Female")) %>%
+  summarise(mean_rating = mean(rating))
+#Results 
+#Gender   Rate
+#Male	    3.0	
+#Female 	6.5
+#Women are more likely to use products for beautification. Men are more likely to use products for play. 
+
+
+
+# Rating by child race
+#I'm honestly not sure this breakdown even matters. I think having the overall mean by race category is more important. 
+Q14_2 <- Q14 %>% select(race)
+Q31_3 <- Q31 %>% select(rating)
+Q31_Q14 <- cbind(Q14_2, Q31_3)
+view(Q31_Q14)
+Q31_Q14 %>%
+  filter(!is.na(race)) %>%
+  filter(!is.na(rating)) %>%
+  group_by(rating) %>%
+  count(race) %>%
+  mutate(prop = n/sum(n))
+#Results
+#Score Race    n %
+#1	Black or African American,White	  2	0.5	
+#1	East Asian	                      2	0.5	
+#2	Black or African American,White	  4	1.0	
+#5	Black or African American,White	  6	1.0	
+#7	Black or African American,White	  2	1.0	
+#8	American Indian or Alaska Native	2	0.5	
+#8	East Asian	                      2	0.5	
+#10	Black or African American,White	  2	0.5	
+#10	East Asian	                      2	0.5	
+
+# Mean rating by Gender
+Q31_Q14 %>% drop_na() %>%
+  group_by(fct_relevel(race)) %>%
+  summarise(mean_rating = mean(rating))
+#Results 
+#Race                             Rate
+#American Indian or Alaska Native	8.000000	
+#Black or African American,White	4.625000	
+#East Asian	                      6.333333
+#American Indians are most likely to use products for beautification. Black and White Americans are most likely to use products for play. 
 ```
 
 ## Indirect Motivation: Duration of wear
@@ -309,6 +378,25 @@ Q26_Q13 %>%
 #Male	0-2 hours	4	0.500	
 #Male	2-4 hours	4	0.500	
 
+#Duration of wear by child race 
+Q14_3 <- Q14 %>% select(race)
+Q26_Q14 <- cbind(Q26, Q14_3)
+#view(Q26_Q14)
+
+Q26_Q14 %>%
+  drop_na() %>%
+  group_by(race) %>%
+  count(duration) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#Race                             Duration  n  %
+#American Indian or Alaska Native	0-2 hours	2	 1.0000000
+#Black or African American,White	  0-2 hours	4	 0.2500000
+#Black or African American,White	  2-4 hours	12 0.7500000
+#East Asian	                      0-2 hours	2	 0.3333333
+#East Asian	                      2-4 hours	2	 0.3333333
+#East Asian	                      8+ hours	2	 0.3333333
 ```
 
 ### All Children
