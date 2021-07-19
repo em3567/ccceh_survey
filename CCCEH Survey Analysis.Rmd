@@ -15,8 +15,10 @@ knitr::opts_chunk$set(echo = TRUE)
 library(readr)
 library(tidyverse)
 library(dplyr)
+library(tidyr) #For splitting comma
 library(labelled)
 library(naniar) #Allows us to replace all missing values with NA
+library(data.table) #For splitting comma
 ```
 
 ## Import Data
@@ -69,6 +71,26 @@ all_practice_data <- all_practice_data %>%
 #  replace_with_na_all(condition = ~.x %in% missing_values)
 #view(all_practice_data2)
 ```
+
+##Split Answer Choice where comma occurs
+```{r}
+#These two methods don't really do what we want them to do. It will split into new rows the different races for parents and children. So for child 1, when you do this by child and parent race it creates 8 responses.
+practice <- all_practice_data
+practice2 <- practice %>% 
+  mutate(practice = strsplit(as.character(Q6), ",")) %>%
+  unnest(practice)
+view(practice2)
+
+practice3 <- separate_rows(all_practice_data, Q6, sep = ",", convert = TRUE)
+practice3 <- separate_rows(all_practice_data, X1_Q14, sep = ",", convert = TRUE)
+practice3 <- separate_rows(all_practice_data, X2_Q14, sep = ",", convert = TRUE)
+practice3 <- separate_rows(all_practice_data, X3_Q14, sep = ",", convert = TRUE)
+practice3 <- separate_rows(all_practice_data, X4_Q14, sep = ",", convert = TRUE)
+practice3 <- separate_rows(all_practice_data, X5_Q14, sep = ",", convert = TRUE)
+view(practice3)
+```
+
+
 
 
 ##Child Age Demographics
@@ -186,6 +208,7 @@ Q14 %>% drop_na() %>%
   count(race_eth) %>%
   mutate(prop = n/sum(n))
 
+<<<<<<< HEAD
 #Results
 #race_eth                         n prop
 #American Indian or Alaska Native 2	0.06666667		
@@ -193,6 +216,30 @@ Q14 %>% drop_na() %>%
 #Black or African American,White	16	0.53333333		
 #East Asian	                      6	0.20000000	
 ```
+=======
+##Child Race Demographics
+```{r}
+# Q14 What race identity best describes Child X?
+# Thinking about above when we want to analyze do we want to have their race reflect multi and bi-racial? I think it is important it just may give us a lot of results and lessen the strength of our anaylsis 
+
+Q14 <- all_practice_data %>% select(ID, X1_Q14, X2_Q14, X3_Q14, X4_Q14, X5_Q14)
+#view(Q14)
+Q14 <- Q14 %>% pivot_longer(!ID, names_to = "child", values_to = "race")
+#view(Q14)
+
+Q14 %>% drop_na() %>%
+  count(race) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#American Indian or Alaska Native	2	  0.06666667	
+#Black or African American	      6	  0.20000000	
+#Black or African American,White	16	0.53333333	
+#East Asian	                      6	  0.20000000	
+```
+
+
+>>>>>>> 2bb32be22e509dca92e042459c996500a75af2f2
 
 ## Direct Motivation: Play vs. Beautification Rating 
 ```{r, rating}
