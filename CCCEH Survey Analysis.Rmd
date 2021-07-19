@@ -193,10 +193,11 @@ Q13 %>% drop_na() %>%
 #Male	  12	0.4	
 ```
 
-## Child Race/Ethnicity Demographics
-```{r, child race}
-
+<<<<<<< HEAD
+##Child Race Demographics
+```{r}
 # Q14 What race/ethnicity category best describes Child X? (If your child is two or more races/ethnicities, please select all that apply)
+# Thinking about above when we want to analyze do we want to have their race reflect multi and bi-racial? I think it is important it just may give us a lot of results and lessen the strength of our analysis 
 
 Q14 <- all_practice_data %>% select(ID, X1_Q14, X2_Q14, X3_Q14, X4_Q14, X5_Q14)
 #view(Q13)
@@ -238,10 +239,12 @@ Q31_demo %>% drop_na() %>%
   group_by(fct_relevel(child_age_cat, "0-3", "4-6", "10-12")) %>%
   summarise(mean_rating = mean(rating))
 
+#We will have to add 7-9 when we get results for that age group. 
 #Results
-#0-3	  9.333333	
-#4-6	  6.250000	
-#10-12	2.200000	
+#Age Cat  Score
+#0-3	    9.333333
+#4-6	    6.250000
+#10-12	  2.200000
 
 # Mean rating by child gender
 Q31_demo <- Q13 %>% select(child_gender) %>% cbind(Q31_demo) %>% select(ID, child, rating, child_age_cat, child_gender)
@@ -342,6 +345,25 @@ Q26_demo %>%
 #East Asian	                      2-4 hours	2	  0.3333333	
 #East Asian	                      8+ hours	2	  0.3333333	
 
+#Duration of wear by child race 
+Q14_3 <- Q14 %>% select(race_eth)
+Q26_Q14 <- cbind(Q26, Q14_3)
+#view(Q26_Q14)
+
+Q26_Q14 %>%
+  drop_na() %>%
+  group_by(race_eth) %>%
+  count(duration) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#Race                             Duration  n  %
+#American Indian or Alaska Native	0-2 hours	2	 1.0000000
+#Black or African American,White	  0-2 hours	4	 0.2500000
+#Black or African American,White	  2-4 hours	12 0.7500000
+#East Asian	                      0-2 hours	2	 0.3333333
+#East Asian	                      2-4 hours	2	 0.3333333
+#East Asian	                      8+ hours	2	 0.3333333
 ```
 
 ### All Children
