@@ -91,8 +91,6 @@ view(practice3)
 ```
 
 
-
-
 ##Child Age Demographics
 ```{r, age}
 # Start by adding a new variable of child age groups:
@@ -194,6 +192,7 @@ Q13 %>% drop_na() %>%
 #Male	  12	0.4	
 
 ```
+
 ## Child Race/Ethnicity Demographics
 ```{r, child race}
 
@@ -208,7 +207,6 @@ Q14 %>% drop_na() %>%
   count(race_eth) %>%
   mutate(prop = n/sum(n))
 
-<<<<<<< HEAD
 #Results
 #race_eth                         n prop
 #American Indian or Alaska Native 2	0.06666667		
@@ -216,30 +214,6 @@ Q14 %>% drop_na() %>%
 #Black or African American,White	16	0.53333333		
 #East Asian	                      6	0.20000000	
 ```
-=======
-##Child Race Demographics
-```{r}
-# Q14 What race identity best describes Child X?
-# Thinking about above when we want to analyze do we want to have their race reflect multi and bi-racial? I think it is important it just may give us a lot of results and lessen the strength of our anaylsis 
-
-Q14 <- all_practice_data %>% select(ID, X1_Q14, X2_Q14, X3_Q14, X4_Q14, X5_Q14)
-#view(Q14)
-Q14 <- Q14 %>% pivot_longer(!ID, names_to = "child", values_to = "race")
-#view(Q14)
-
-Q14 %>% drop_na() %>%
-  count(race) %>%
-  mutate(prop = n/sum(n))
-
-#Results
-#American Indian or Alaska Native	2	  0.06666667	
-#Black or African American	      6	  0.20000000	
-#Black or African American,White	16	0.53333333	
-#East Asian	                      6	  0.20000000	
-```
-
-
->>>>>>> 2bb32be22e509dca92e042459c996500a75af2f2
 
 ## Direct Motivation: Play vs. Beautification Rating 
 ```{r, rating}
