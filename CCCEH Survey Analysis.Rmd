@@ -739,3 +739,54 @@ Q28_demo %>%
 #10-12   Yes	        4	0.40
 ```
 
+###Q24  
+```{r}
+#In the last year, approximately how much does product packaging influence Child 1 's interest in children's makeup and body products?
+
+#"A great deal", "A moderate amount", "Very little", "Not at all", "Do not know"
+
+# Combine data from all children into 1 table and assess distribution overall
+Q24 <- all_practice_data %>% select(ID, X1_Q24, X2_Q24, X3_Q24, X4_Q24, X5_Q24)
+Q24 <- Q24 %>% pivot_longer(!ID, names_to = "child", values_to = "packaging")
+#view(Q24)
+
+Q24 %>% filter(!is.na(packaging)) %>% count(fct_relevel(packaging, "A great deal", "A moderate amount", "Very little", "Not at all", "Do not know")) %>% mutate(prop = n/sum(n))
+
+# Results
+#A great deal	6	0.6		
+#Very little	2	0.2		
+#Not at all	2	0.2		
+
+# Packaging Influence by child age category 
+Q24_demo <- Q12 %>% select(child_age_cat) %>% cbind(Q24) %>% select(ID, child, packaging, child_age_cat)
+# view(Q24_demo)
+
+Q24_demo %>%
+  drop_na() %>%
+  group_by(fct_relevel(child_age_cat, "0-3", "4-6", "10-12")) %>%
+  count(packaging) %>%
+  mutate(prop = n/sum(n))
+
+# Results 
+# Age   packaging     n prop
+#0-3    Not at all	  2	1.0000000
+#4-6    A great deal	2	1.0000000
+#10-12  A great deal	4	0.6666667
+#10-12  Very little	  2	0.3333333
+
+
+# packaging influence  by child gender
+Q24_demo <- Q13 %>% select(child_gender) %>% cbind(Q24_demo) %>% select(ID, child, packaging, child_age_cat, child_gender)
+#view(Q24_demo)
+
+Q24_demo %>%
+  drop_na() %>%
+  group_by(child_gender) %>%
+  count(packaging) %>%
+  mutate(prop = n/sum(n))
+
+#Gender Infleunce  n prop
+#Female	  A great deal	6	0.75	
+#Female	  Not at all	  2	0.25	
+#Male	    Very little	  2	1.00	
+```
