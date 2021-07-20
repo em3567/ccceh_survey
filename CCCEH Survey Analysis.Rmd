@@ -700,3 +700,42 @@ Q25_demo %>% drop_na() %>%
 #Prefer not to answer	  Once a year or less 	2	0.5
 ```
 
+###Q28 Ingestion
+```{r}
+#Q28: (Ingestion) In this last year, has Child 1 ingested children's makeup and body products, either intentionally or unintentionally?
+#"Yes", "No", "Do not know"
+
+# Combine data from all children into 1 table and assess distribution overall
+Q28 <- all_practice_data %>% select(ID, X1_Q28, X2_Q28, X3_Q28, X4_Q28, X5_Q28)
+Q28 <- Q28 %>% pivot_longer(!ID, names_to = "child", values_to = "ingest")
+#view(Q28)
+
+Q28 %>% filter(!is.na(ingest)) %>% count(ingest) %>% mutate(prop = n/sum(n))
+
+# Results
+#Ingest             n   prop
+#Do not know	6	0.25		
+#No	          12	0.50		
+#Yes	        6	0.25		
+
+# Freq of use by child age category 
+Q28_demo <- Q12 %>% select(child_age_cat) %>% cbind(Q28) %>% select(ID, child, ingest, child_age_cat)
+# view(Q28_demo)
+
+Q28_demo %>%
+  drop_na() %>%
+  group_by(fct_relevel(child_age_cat, "0-3", "4-6", "10-12")) %>%
+  count(ingest) %>%
+  mutate(prop = n/sum(n))
+
+#Results 
+#Ingest         n       %
+#0-3     No	        6	1.00
+#4-6     Do not know	2	0.25
+#4-6     No	        4	0.50
+#4-6     Yes	        2	0.25
+#10-12   Do not know	4	0.40
+#10-12   No	        2	0.20
+#10-12   Yes	        4	0.40
+```
+
