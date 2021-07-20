@@ -302,7 +302,7 @@ Q31_demo %>% drop_na() %>%
 #East Asian	                      6.333333	
 
 #Rating by Parent Income
-Q31_demo <- Q8 %>% select(income, parent) %>% cbind(Q31_demo) %>% select(ID, child, rating, income, parent)
+Q31_demo <- Q8 %>% select(income) %>% cbind(Q31_demo) %>% select(ID, child, rating, income)
 
 Q31_demo %>% drop_na() %>%
   group_by(fct_relevel(income, "$25k - $75k", "$75k - $125k", "$125k - $175k", "$175k+", "Prefer not to answer")) %>%
@@ -602,3 +602,101 @@ all_practice_data %>%
 #$175k+	                Once a year	    2	1.0	
 #Prefer not to answer	  NA	            2	1.0	
 ```
+
+
+###Q25
+```{r}
+# Q25 In the last year, approximately how often does Child 1 use children's makeup and body products? 
+# "Once a year or less", "A few times a year", "Monthly", "Once every two weeks", "Weekly", "Daily or more", "do not know"
+
+# Combine data from all children into 1 table and assess distribution overall
+Q25 <- all_practice_data %>% select(ID, X1_Q25, X2_Q25, X3_Q25, X4_Q25, X5_Q25)
+Q25 <- Q25 %>% pivot_longer(!ID, names_to = "child", values_to = "freq_use")
+#view(Q25)
+
+Q25 %>% filter(!is.na(freq_use)) %>% count(fct_relevel(freq_use, "Once a year or less", "A few times a year", "Monthly", "Once every two weeks", "Weekly", "Daily or more", "Do not know")) %>% mutate(prop = n/sum(n))
+
+# Results
+#freq use             n   prop
+#Once a year or less	  6	0.2500000	
+#A few times a year	    10	0.4166667	
+#Monthly	              8	0.3333333	
+
+# Freq of use by child age category 
+Q25_demo <- Q12 %>% select(child_age_cat) %>% cbind(Q25) %>% select(ID, child, freq_use, child_age_cat)
+# view(Q25_demo)
+
+Q25_demo %>%
+  drop_na() %>%
+  group_by(fct_relevel(child_age_cat, "0-3", "4-6", "10-12")) %>%
+  count(freq_use) %>%
+  mutate(prop = n/sum(n))
+
+# Results 
+# Age   Duration    n prop
+#0-3        A few times a year	4	0.6666667
+#0-3        Monthly	2	0.3333333
+#4-6        A few times a year	2	0.2500000
+#4-6        Monthly	2	0.2500000
+#4-6        Once a year or less	4	0.5000000
+#10-12        A few times a year	4	0.4000000
+#10-12        Monthly	4	0.4000000
+#10-12        Once a year or less	2	0.2000000
+
+
+# Duration of use by child gender
+Q25_demo <- Q13 %>% select(child_gender) %>% cbind(Q25_demo) %>% select(ID, child, freq_use, child_age_cat, child_gender)
+#view(Q25_demo)
+
+Q25_demo %>%
+  drop_na() %>%
+  group_by(child_gender) %>%
+  count(freq_use) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#Gender Duration  n   prop
+#Female	A few times a year	  6	0.375	
+#Female	Monthly	              8	0.500	
+#Female	Once a year or less	  2	0.125	
+#Male	A few times a year	    4	0.500	
+#Male	Once a year or less	    4	0.500		
+
+# Duration of use by child race/ethnicity
+Q25_demo <- Q14 %>% select(child_race_eth) %>% cbind(Q25_demo) %>% select(ID, child, freq_use, child_age_cat, child_gender, child_race_eth)
+#view(Q25_demo)
+
+Q25_demo %>% 
+  drop_na() %>% 
+  group_by(child_race_eth) %>%
+  count(freq_use) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#race_eth         freq  n   prop
+#American Indian	A few times a year	2	1.0000000
+#Blak, White      A few times a year	8	0.5000000
+#Black, White     Monthly	            6	0.3750000
+#Black, White     Once a year or less	2	0.1250000
+#East ASian       Monthly	            2	0.3333333
+#East ASian       Once a year or less	4	0.6666667                 
+#Rating by Parent Income
+Q25_demo <- Q8 %>% select(income) %>% cbind(Q25_demo) %>% select(ID, child, freq_use, income)
+
+Q25_demo %>% drop_na() %>%
+  group_by(fct_relevel(income, "$25k - $75k", "$75k - $125k", "$125k - $175k", "$175k+", "Prefer not to answer")) %>%
+  count(freq_use) %>%
+  mutate(prop = n/sum(n))
+#Results 
+#$25k - $75k	          Monthly	              2 1.0
+#$75k - $125k	          A few times a year	  2	0.25
+#$75k - $125k	          Monthly	              4	0.50
+#$75k - $125k	          Once a year or less	  2	0.25
+#$125k - $175k	        A few times a year	  2	0.5
+#$125k - $175k	        Monthly	              2	0.5
+#$175k+	                A few times a year	  4	0.67
+#$175k+	                Once a year or less	  2	0.33
+#Prefer not to answer	  A few times a year	  2	0.5
+#Prefer not to answer	  Once a year or less 	2	0.5
+```
+
