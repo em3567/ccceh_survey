@@ -246,6 +246,9 @@ Q6 %>% drop_na() %>%
 # Household income
 Q8 <- all_practice_data %>% select(ID, Q8) %>% rename(income = Q8)
 
+#Parent Education
+Q7 <- all_practice_data %>% select(ID, Q7) %>% rename(education = Q7)
+
 ```
 
 ## Direct Motivation: Play vs. Beautification Rating 
@@ -680,7 +683,7 @@ Q25_demo %>%
 #Black, White     Once a year or less	2	0.1250000
 #East ASian       Monthly	            2	0.3333333
 #East ASian       Once a year or less	4	0.6666667                 
-#Rating by Parent Income
+#Freq Use Parent Income
 Q25_demo <- Q8 %>% select(income) %>% cbind(Q25_demo) %>% select(ID, child, freq_use, income)
 
 Q25_demo %>% drop_na() %>%
@@ -790,3 +793,125 @@ Q24_demo %>%
 #Female	  Not at all	  2	0.25	
 #Male	    Very little	  2	1.00	
 ```
+
+###Q21 
+```{r}
+#Q21: (Adults/kids proportion) In the last year, what proportion of total makeup and body products used by Child 1 would be considered children's products rather than adult products?
+
+# "None (0%)", "Few (Less than 25%), "Less than Half (25-50%)", "More than Half (50-75%)", "Large Majority (75-100%)", "Do not know"
+
+# Combine data from all children into 1 table and assess distribution overall
+Q21 <- all_practice_data %>% select(ID, X1_Q21, X2_Q21, X3_Q21, X4_Q21, X5_Q21)
+Q21 <- Q21 %>% pivot_longer(!ID, names_to = "child", values_to = "kid_adult")
+#view(Q21)
+
+Q21 %>% filter(!is.na(kid_adult)) %>% count(fct_relevel(kid_adult, "None (0%)", "Few (Less than 25%)", "Less than Half (25-50%)", "More than Half (50-75%)", "Large Majority (75-100%)", "Do not know")) %>% mutate(prop = n/sum(n))
+
+# Results
+#kid_adult             n   prop
+#Few (Less than 25%)	    6	  0.25000000	
+#Less than Half (25-50%)	2	  0.08333333	
+#More than Half (50-75%)	6	  0.25000000	
+#Large Majority (75-100%)	10	0.41666667
+
+#kid_adult  by child age category 
+Q21_demo <- Q12 %>% select(child_age_cat) %>% cbind(Q21) %>% select(ID, child, kid_adult, child_age_cat)
+# view(Q21_demo)
+
+Q21_demo %>%
+  drop_na() %>%
+  group_by(fct_relevel(child_age_cat, "0-3", "4-6", "10-12")) %>%
+  count(kid_adult) %>%
+  mutate(prop = n/sum(n))
+
+# Results 
+# Age   Duration                n prop
+#0-3 Few (Less than 25%)	      2	0.3333333
+#0-3 Large Majority (75-100%)	  4	0.6666667
+#4-6 Large Majority (75-100%)	  4	0.5000000
+#4-6 Less than Half (25-50%)	  2	0.2500000
+#4-6 More than Half (50-75%)	  2	0.2500000
+#10-12 Few (Less than 25%)	    4	0.4000000
+#10-12 Large Majority (75-100%)	2	0.2000000
+#10-12 More than Half (50-75%)	4	0.4000000
+
+# Duration of use by child gender
+Q21_demo <- Q13 %>% select(child_gender) %>% cbind(Q21_demo) %>% select(ID, child, kid_adult, child_age_cat, child_gender)
+#view(Q21_demo)
+
+Q21_demo %>%
+  drop_na() %>%
+  group_by(child_gender) %>%
+  count(kid_adult) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#Gender kid_adult                  n   prop
+#Female	Few (Less than 25%)	      2	0.125
+#Female	Large Majority (75-100%)	10	0.625
+#Female	More than Half (50-75%)	  4	0.250
+#Male	Few (Less than 25%)	        4	0.500
+#Male	Less than Half (25-50%)	    2	0.250
+#Male	More than Half (50-75%)	    2	0.250		
+
+#Kid_adult by child race/ethnicity
+Q21_demo <- Q14 %>% select(child_race_eth) %>% cbind(Q21_demo) %>% select(ID, child, kid_adult, child_age_cat, child_gender, child_race_eth)
+#view(Q21_demo)
+
+Q21_demo %>% 
+  drop_na() %>% 
+  group_by(child_race_eth) %>%
+  count(kid_adult) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#race_eth         kid_adult                   n   prop
+#Native Few (Less than 25%)	            2	1.0000000
+#Black, White Few (Less than 25%)     	2	0.1250000
+#Black, White Large Majority (75-100%)	8	0.5000000
+#Black, White More than Half (50-75%)	  6	0.3750000
+#East ASian Few (Less than 25%)	        2	0.3333333
+#East Asian Large Majority (75-100%)	  2	0.3333333
+#East Asian Less than Half (25-50%)	    2	0.3333333
+
+
+#Kid_adult Parent Income
+Q21_demo <- Q8 %>% select(income) %>% cbind(Q21_demo) %>% select(ID, child, kid_adult, income)
+
+Q21_demo %>% drop_na() %>%
+  group_by(fct_relevel(income, "$25k - $75k", "$75k - $125k", "$125k - $175k", "$175k+", "Prefer not to answer")) %>%
+  count(kid_adult) %>%
+  mutate(prop = n/sum(n))
+
+#Results 
+#Income   Kid_adult n prop
+#$25k - $75k	More than Half (50-75%)	          2	1.0
+#$75k - $125k	Large Majority (75-100%)	        4	0.5
+#$75k - $125k	More than Half (50-75%)	          4	0.5
+#$125k - $175k	Few (Less than 25%)	            2	0.5
+#$125k - $175k	Large Majority (75-100%)	      2	0.5
+#$175k+	Few (Less than 25%)	                    2	0.33
+#$175k+	Large Majority (75-100%)	              2	0.33
+#$175k+	Less than Half (25-50%)	                2	0.33
+#Prefer not to answer	Few (Less than 25%)	      2	0.5
+#Prefer not to answer	Large Majority (75-100%)	2	0.5
+
+
+Q21_demo <- Q7 %>% select (education) %>% cbind(Q21_demo) %>% select(ID, child, kid_adult, education)
+
+Q21_demo %>% drop_na() %>%
+  group_by(fct_relevel(education, "Less than high school", "High school / Equivalent", "Vocational/trade school", "Some college", "Completed college", "Some graduate school or more", "Prefer not to answer")) %>%
+  count(kid_adult) %>%
+  mutate(prop = n/sum(n))
+#Results 
+#Education kid_adult                    n prop
+#Vocational More than Half (50-75%)	    2	1.0000000
+#Some college Large Majority (75-100%)	4	1.0000000
+#Completed Few (Less than 25%)	        2	0.2500000
+#Completed Large Majority (75-100%)	    2	0.2500000
+#Completed More than Half (50-75%)	    4	0.5000000
+#Some grad Few (Less than 25%)	        2	0.3333333
+#Some grad Large Majority (75-100%)	    2	0.3333333
+#Some grad Less than Half (25-50%)	    2	0.3333333
+```
+
