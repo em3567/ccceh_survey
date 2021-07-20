@@ -89,7 +89,20 @@ practice3 <- separate_rows(all_practice_data, X4_Q14, sep = ",", convert = TRUE)
 practice3 <- separate_rows(all_practice_data, X5_Q14, sep = ",", convert = TRUE)
 view(practice3)
 
-# We'll have to figure out how we want to analyze mixed race families before we start doing this
+# So we could do it like this...but it would be A LOT 
+
+all_practice_data_test <- all_practice_data %>%
+  transform(X1_Q14_native = grepl("American Indian or Alaska Native", X1_Q14),
+            X1_Q14_black = grepl("Black or African American", X1_Q14),
+            X1_Q14_eastasian = grepl("East Asian", X1_Q14),
+            X1_Q14_latinx = grepl("Hispanic / Latinx", X1_Q14),
+            X1_Q14_mena = grepl("Middle Eastern or North African", X1_Q14),
+            X1_Q14_hawaii = grepl("Native Hawaiian or Pacific Islander", X1_Q14),
+            X1_Q14_southasian = grepl("South Asian", X1_Q14),
+            X1_Q14_white = grepl("White", X1_Q14),
+            X1_Q14_none = grepl("Prefer not to answer", X1_Q14))
+
+# https://community.rstudio.com/t/a-use-case-for-tidyr-chop-check-all-that-apply-survey-questions/47859/2 
 ```
 
 ##Child Age Demographics
