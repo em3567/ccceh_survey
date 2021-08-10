@@ -292,6 +292,9 @@ Q6 %>% drop_na() %>%
 # Household income
 Q8 <- all_practice_data %>% select(ID, Q8) %>% rename(income = Q8)
 
+#Parent Education
+Q7 <- all_practice_data %>% select(ID, Q7) %>% rename(education = Q7)
+
 ```
 
 ## Direct Motivation: Play vs. Beautification Rating 
@@ -348,7 +351,7 @@ Q31_demo %>% drop_na() %>%
 #East Asian	                      6.333333	
 
 #Rating by Parent Income
-Q31_demo <- Q8 %>% select(income, parent) %>% cbind(Q31_demo) %>% select(ID, child, rating, income, parent)
+Q31_demo <- Q8 %>% select(income) %>% cbind(Q31_demo) %>% select(ID, child, rating, income)
 
 Q31_demo %>% drop_na() %>%
   group_by(fct_relevel(income, "$25k - $75k", "$75k - $125k", "$125k - $175k", "$175k+", "Prefer not to answer")) %>%
@@ -647,3 +650,313 @@ all_practice_data %>%
 #$175k+	                Once a year	    2	1.0	
 #Prefer not to answer	  NA	            2	1.0	
 ```
+
+
+###Q25
+```{r}
+# Q25 In the last year, approximately how often does Child 1 use children's makeup and body products? 
+# "Once a year or less", "A few times a year", "Monthly", "Once every two weeks", "Weekly", "Daily or more", "do not know"
+
+# Combine data from all children into 1 table and assess distribution overall
+Q25 <- all_practice_data %>% select(ID, X1_Q25, X2_Q25, X3_Q25, X4_Q25, X5_Q25)
+Q25 <- Q25 %>% pivot_longer(!ID, names_to = "child", values_to = "freq_use")
+#view(Q25)
+
+Q25 %>% filter(!is.na(freq_use)) %>% count(fct_relevel(freq_use, "Once a year or less", "A few times a year", "Monthly", "Once every two weeks", "Weekly", "Daily or more", "Do not know")) %>% mutate(prop = n/sum(n))
+
+# Results
+#freq use             n   prop
+#Once a year or less	  6	0.2500000	
+#A few times a year	    10	0.4166667	
+#Monthly	              8	0.3333333	
+
+# Freq of use by child age category 
+Q25_demo <- Q12 %>% select(child_age_cat) %>% cbind(Q25) %>% select(ID, child, freq_use, child_age_cat)
+# view(Q25_demo)
+
+Q25_demo %>%
+  drop_na() %>%
+  group_by(fct_relevel(child_age_cat, "0-3", "4-6", "10-12")) %>%
+  count(freq_use) %>%
+  mutate(prop = n/sum(n))
+
+# Results 
+# Age   Duration    n prop
+#0-3        A few times a year	4	0.6666667
+#0-3        Monthly	2	0.3333333
+#4-6        A few times a year	2	0.2500000
+#4-6        Monthly	2	0.2500000
+#4-6        Once a year or less	4	0.5000000
+#10-12        A few times a year	4	0.4000000
+#10-12        Monthly	4	0.4000000
+#10-12        Once a year or less	2	0.2000000
+
+
+# Duration of use by child gender
+Q25_demo <- Q13 %>% select(child_gender) %>% cbind(Q25_demo) %>% select(ID, child, freq_use, child_age_cat, child_gender)
+#view(Q25_demo)
+
+Q25_demo %>%
+  drop_na() %>%
+  group_by(child_gender) %>%
+  count(freq_use) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#Gender Duration  n   prop
+#Female	A few times a year	  6	0.375	
+#Female	Monthly	              8	0.500	
+#Female	Once a year or less	  2	0.125	
+#Male	A few times a year	    4	0.500	
+#Male	Once a year or less	    4	0.500		
+
+# Duration of use by child race/ethnicity
+Q25_demo <- Q14 %>% select(child_race_eth) %>% cbind(Q25_demo) %>% select(ID, child, freq_use, child_age_cat, child_gender, child_race_eth)
+#view(Q25_demo)
+
+Q25_demo %>% 
+  drop_na() %>% 
+  group_by(child_race_eth) %>%
+  count(freq_use) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#race_eth         freq  n   prop
+#American Indian	A few times a year	2	1.0000000
+#Blak, White      A few times a year	8	0.5000000
+#Black, White     Monthly	            6	0.3750000
+#Black, White     Once a year or less	2	0.1250000
+#East ASian       Monthly	            2	0.3333333
+#East ASian       Once a year or less	4	0.6666667                 
+#Freq Use Parent Income
+Q25_demo <- Q8 %>% select(income) %>% cbind(Q25_demo) %>% select(ID, child, freq_use, income)
+
+Q25_demo %>% drop_na() %>%
+  group_by(fct_relevel(income, "$25k - $75k", "$75k - $125k", "$125k - $175k", "$175k+", "Prefer not to answer")) %>%
+  count(freq_use) %>%
+  mutate(prop = n/sum(n))
+#Results 
+#$25k - $75k	          Monthly	              2 1.0
+#$75k - $125k	          A few times a year	  2	0.25
+#$75k - $125k	          Monthly	              4	0.50
+#$75k - $125k	          Once a year or less	  2	0.25
+#$125k - $175k	        A few times a year	  2	0.5
+#$125k - $175k	        Monthly	              2	0.5
+#$175k+	                A few times a year	  4	0.67
+#$175k+	                Once a year or less	  2	0.33
+#Prefer not to answer	  A few times a year	  2	0.5
+#Prefer not to answer	  Once a year or less 	2	0.5
+```
+
+###Q28 Ingestion
+```{r}
+#Q28: (Ingestion) In this last year, has Child 1 ingested children's makeup and body products, either intentionally or unintentionally?
+#"Yes", "No", "Do not know"
+
+# Combine data from all children into 1 table and assess distribution overall
+Q28 <- all_practice_data %>% select(ID, X1_Q28, X2_Q28, X3_Q28, X4_Q28, X5_Q28)
+Q28 <- Q28 %>% pivot_longer(!ID, names_to = "child", values_to = "ingest")
+#view(Q28)
+
+Q28 %>% filter(!is.na(ingest)) %>% count(ingest) %>% mutate(prop = n/sum(n))
+
+# Results
+#Ingest             n   prop
+#Do not know	6	0.25		
+#No	          12	0.50		
+#Yes	        6	0.25		
+
+# Freq of use by child age category 
+Q28_demo <- Q12 %>% select(child_age_cat) %>% cbind(Q28) %>% select(ID, child, ingest, child_age_cat)
+# view(Q28_demo)
+
+Q28_demo %>%
+  drop_na() %>%
+  group_by(fct_relevel(child_age_cat, "0-3", "4-6", "10-12")) %>%
+  count(ingest) %>%
+  mutate(prop = n/sum(n))
+
+#Results 
+#Ingest         n       %
+#0-3     No	        6	1.00
+#4-6     Do not know	2	0.25
+#4-6     No	        4	0.50
+#4-6     Yes	        2	0.25
+#10-12   Do not know	4	0.40
+#10-12   No	        2	0.20
+#10-12   Yes	        4	0.40
+```
+
+###Q24  
+```{r}
+#In the last year, approximately how much does product packaging influence Child 1 's interest in children's makeup and body products?
+
+#"A great deal", "A moderate amount", "Very little", "Not at all", "Do not know"
+
+# Combine data from all children into 1 table and assess distribution overall
+Q24 <- all_practice_data %>% select(ID, X1_Q24, X2_Q24, X3_Q24, X4_Q24, X5_Q24)
+Q24 <- Q24 %>% pivot_longer(!ID, names_to = "child", values_to = "packaging")
+#view(Q24)
+
+Q24 %>% filter(!is.na(packaging)) %>% count(fct_relevel(packaging, "A great deal", "A moderate amount", "Very little", "Not at all", "Do not know")) %>% mutate(prop = n/sum(n))
+
+# Results
+#A great deal	6	0.6		
+#Very little	2	0.2		
+#Not at all	2	0.2		
+
+# Packaging Influence by child age category 
+Q24_demo <- Q12 %>% select(child_age_cat) %>% cbind(Q24) %>% select(ID, child, packaging, child_age_cat)
+# view(Q24_demo)
+
+Q24_demo %>%
+  drop_na() %>%
+  group_by(fct_relevel(child_age_cat, "0-3", "4-6", "10-12")) %>%
+  count(packaging) %>%
+  mutate(prop = n/sum(n))
+
+# Results 
+# Age   packaging     n prop
+#0-3    Not at all	  2	1.0000000
+#4-6    A great deal	2	1.0000000
+#10-12  A great deal	4	0.6666667
+#10-12  Very little	  2	0.3333333
+
+
+# packaging influence  by child gender
+Q24_demo <- Q13 %>% select(child_gender) %>% cbind(Q24_demo) %>% select(ID, child, packaging, child_age_cat, child_gender)
+#view(Q24_demo)
+
+Q24_demo %>%
+  drop_na() %>%
+  group_by(child_gender) %>%
+  count(packaging) %>%
+  mutate(prop = n/sum(n))
+
+#Gender Infleunce  n prop
+#Female	  A great deal	6	0.75	
+#Female	  Not at all	  2	0.25	
+#Male	    Very little	  2	1.00	
+```
+
+###Q21 
+```{r}
+#Q21: (Adults/kids proportion) In the last year, what proportion of total makeup and body products used by Child 1 would be considered children's products rather than adult products?
+
+# "None (0%)", "Few (Less than 25%), "Less than Half (25-50%)", "More than Half (50-75%)", "Large Majority (75-100%)", "Do not know"
+
+# Combine data from all children into 1 table and assess distribution overall
+Q21 <- all_practice_data %>% select(ID, X1_Q21, X2_Q21, X3_Q21, X4_Q21, X5_Q21)
+Q21 <- Q21 %>% pivot_longer(!ID, names_to = "child", values_to = "kid_adult")
+#view(Q21)
+
+Q21 %>% filter(!is.na(kid_adult)) %>% count(fct_relevel(kid_adult, "None (0%)", "Few (Less than 25%)", "Less than Half (25-50%)", "More than Half (50-75%)", "Large Majority (75-100%)", "Do not know")) %>% mutate(prop = n/sum(n))
+
+# Results
+#kid_adult             n   prop
+#Few (Less than 25%)	    6	  0.25000000	
+#Less than Half (25-50%)	2	  0.08333333	
+#More than Half (50-75%)	6	  0.25000000	
+#Large Majority (75-100%)	10	0.41666667
+
+#kid_adult  by child age category 
+Q21_demo <- Q12 %>% select(child_age_cat) %>% cbind(Q21) %>% select(ID, child, kid_adult, child_age_cat)
+# view(Q21_demo)
+
+Q21_demo %>%
+  drop_na() %>%
+  group_by(fct_relevel(child_age_cat, "0-3", "4-6", "10-12")) %>%
+  count(kid_adult) %>%
+  mutate(prop = n/sum(n))
+
+# Results 
+# Age   Duration                n prop
+#0-3 Few (Less than 25%)	      2	0.3333333
+#0-3 Large Majority (75-100%)	  4	0.6666667
+#4-6 Large Majority (75-100%)	  4	0.5000000
+#4-6 Less than Half (25-50%)	  2	0.2500000
+#4-6 More than Half (50-75%)	  2	0.2500000
+#10-12 Few (Less than 25%)	    4	0.4000000
+#10-12 Large Majority (75-100%)	2	0.2000000
+#10-12 More than Half (50-75%)	4	0.4000000
+
+# Duration of use by child gender
+Q21_demo <- Q13 %>% select(child_gender) %>% cbind(Q21_demo) %>% select(ID, child, kid_adult, child_age_cat, child_gender)
+#view(Q21_demo)
+
+Q21_demo %>%
+  drop_na() %>%
+  group_by(child_gender) %>%
+  count(kid_adult) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#Gender kid_adult                  n   prop
+#Female	Few (Less than 25%)	      2	0.125
+#Female	Large Majority (75-100%)	10	0.625
+#Female	More than Half (50-75%)	  4	0.250
+#Male	Few (Less than 25%)	        4	0.500
+#Male	Less than Half (25-50%)	    2	0.250
+#Male	More than Half (50-75%)	    2	0.250		
+
+#Kid_adult by child race/ethnicity
+Q21_demo <- Q14 %>% select(child_race_eth) %>% cbind(Q21_demo) %>% select(ID, child, kid_adult, child_age_cat, child_gender, child_race_eth)
+#view(Q21_demo)
+
+Q21_demo %>% 
+  drop_na() %>% 
+  group_by(child_race_eth) %>%
+  count(kid_adult) %>%
+  mutate(prop = n/sum(n))
+
+#Results
+#race_eth         kid_adult                   n   prop
+#Native Few (Less than 25%)	            2	1.0000000
+#Black, White Few (Less than 25%)     	2	0.1250000
+#Black, White Large Majority (75-100%)	8	0.5000000
+#Black, White More than Half (50-75%)	  6	0.3750000
+#East ASian Few (Less than 25%)	        2	0.3333333
+#East Asian Large Majority (75-100%)	  2	0.3333333
+#East Asian Less than Half (25-50%)	    2	0.3333333
+
+
+#Kid_adult Parent Income
+Q21_demo <- Q8 %>% select(income) %>% cbind(Q21_demo) %>% select(ID, child, kid_adult, income)
+
+Q21_demo %>% drop_na() %>%
+  group_by(fct_relevel(income, "$25k - $75k", "$75k - $125k", "$125k - $175k", "$175k+", "Prefer not to answer")) %>%
+  count(kid_adult) %>%
+  mutate(prop = n/sum(n))
+
+#Results 
+#Income   Kid_adult n prop
+#$25k - $75k	More than Half (50-75%)	          2	1.0
+#$75k - $125k	Large Majority (75-100%)	        4	0.5
+#$75k - $125k	More than Half (50-75%)	          4	0.5
+#$125k - $175k	Few (Less than 25%)	            2	0.5
+#$125k - $175k	Large Majority (75-100%)	      2	0.5
+#$175k+	Few (Less than 25%)	                    2	0.33
+#$175k+	Large Majority (75-100%)	              2	0.33
+#$175k+	Less than Half (25-50%)	                2	0.33
+#Prefer not to answer	Few (Less than 25%)	      2	0.5
+#Prefer not to answer	Large Majority (75-100%)	2	0.5
+
+
+Q21_demo <- Q7 %>% select (education) %>% cbind(Q21_demo) %>% select(ID, child, kid_adult, education)
+
+Q21_demo %>% drop_na() %>%
+  group_by(fct_relevel(education, "Less than high school", "High school / Equivalent", "Vocational/trade school", "Some college", "Completed college", "Some graduate school or more", "Prefer not to answer")) %>%
+  count(kid_adult) %>%
+  mutate(prop = n/sum(n))
+#Results 
+#Education kid_adult                    n prop
+#Vocational More than Half (50-75%)	    2	1.0000000
+#Some college Large Majority (75-100%)	4	1.0000000
+#Completed Few (Less than 25%)	        2	0.2500000
+#Completed Large Majority (75-100%)	    2	0.2500000
+#Completed More than Half (50-75%)	    4	0.5000000
+#Some grad Few (Less than 25%)	        2	0.3333333
+#Some grad Large Majority (75-100%)	    2	0.3333333
+#Some grad Less than Half (25-50%)	    2	0.3333333
+```
+
