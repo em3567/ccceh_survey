@@ -73,7 +73,7 @@ all_practice_data <- all_practice_data %>%
 ```
 
 ##Split Answer Choice where comma occurs
-```{r}
+```{r, split}
 #These two methods don't really do what we want them to do. It will split into new rows the different races for parents and children. So for child 1, when you do this by child and parent race it creates 8 responses.
 practice <- all_practice_data
 practice2 <- practice %>% 
@@ -103,6 +103,52 @@ all_practice_data_test <- all_practice_data %>%
             X1_Q14_none = grepl("Prefer not to answer", X1_Q14))
 
 # https://community.rstudio.com/t/a-use-case-for-tidyr-chop-check-all-that-apply-survey-questions/47859/2 
+```
+
+```{r, all that apply, eval = FALSE}
+## template for analyzing Select All That Apply questions (code written by Miranda)
+##turns comma separated responses into dummy variables with the response as the column name (ie, “23.skin”, “23.hair”)
+dat <- strsplit(samp$X1_Q23, ",")
+lvls <- unique(unlist(dat))
+kid1 <- structure(lapply(lvls, function(lvl) sapply(dat, function(xx) lvl %in% xx)),
+                 .Names = paste0('Q23.', lvls),
+                 row.names = c(NA, -length(dat)), class = 'data.frame')
+kid1 <- 1 * kid1 ## convert from TRUE/FALSE to 1/0
+ 
+dat <- strsplit(samp$X2_Q23, ",")
+lvls <- unique(unlist(dat))
+kid2 <- structure(lapply(lvls, function(lvl) sapply(dat, function(xx) lvl %in% xx)),
+                 .Names = paste0('Q23.', lvls),
+                 row.names = c(NA, -length(dat)), class = 'data.frame')
+kid2 <- 1 * kid2
+ 
+dat <- strsplit(samp$X3_Q23, ",")
+lvls <- unique(unlist(dat))
+kid3 <- structure(lapply(lvls, function(lvl) sapply(dat, function(xx) lvl %in% xx)),
+                  .Names = paste0('Q23.', lvls),
+                  row.names = c(NA, -length(dat)), class = 'data.frame')
+kid3 <- 1 * kid3
+ 
+dat <- strsplit(samp$X4_Q23, ",")
+lvls <- unique(unlist(dat))
+kid4 <- structure(lapply(lvls, function(lvl) sapply(dat, function(xx) lvl %in% xx)),
+                  .Names = paste0('Q23.', lvls),
+                  row.names = c(NA, -length(dat)), class = 'data.frame')
+kid4 <- 1 * kid4
+ 
+dat <- strsplit(samp$X5_Q23, ",")
+lvls <- unique(unlist(dat))
+kid5 <- structure(lapply(lvls, function(lvl) sapply(dat, function(xx) lvl %in% xx)),
+                  .Names = paste0('Q23.', lvls),
+                  row.names = c(NA, -length(dat)), class = 'data.frame')
+kid5 <- 1 * kid5
+ 
+q23 <- dplyr::bind_rows(kid1, kid2, kid3, kid4, kid5)
+ 
+##creates the table of frequencies and counts
+adply(q23[grepl("Q23.", colnames(q23))], 2, function(x)
+  data.frame(Count = as.data.frame(table(x))[2,2],
+             Perc = as.data.frame(prop.table(table(x)))[2,2]))
 ```
 
 ##Child Age Demographics
@@ -486,7 +532,6 @@ Q27_demo <- Q6 %>% select(parent_race_eth) %>% cbind(Q27) %>% select(ID, applies
 
 
 ```
-
 
 ### All Children
 ```{r}
